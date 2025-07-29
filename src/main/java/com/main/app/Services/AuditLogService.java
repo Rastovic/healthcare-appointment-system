@@ -5,6 +5,8 @@ import com.main.app.Repositories.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AuditLogService {
 
@@ -29,4 +31,7 @@ public class AuditLogService {
 
     }
 
+    public List<AuditLog> findAll() {
+    return auditLogRepository.findAll();
+    }
 }
