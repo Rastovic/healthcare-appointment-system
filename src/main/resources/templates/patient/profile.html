@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Patient Profile</title>
+
+    <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+
+<body>
+
+<h2>Patient Profile</h2>
+
+<form method="post" action="/patient/profile">
+
+    <label>Name: <input type="text" name="name" th:value="${patient.name}"/></label><br/>
+
+    <label>DOB: <input type="text" name="dob" th:value="${patient.dob}"/></label><br/>
+
+    <label>Address: <input type="text" name="address" th:value="${patient.address}"/></label><br/>
+
+    <button type="submit">Update</button>
+
+</form>
+
+</body>
+
+</html>

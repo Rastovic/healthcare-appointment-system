@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Audit Logs</title>
+
+    <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+
+<body>
+
+<h2>Audit Logs</h2>
+
+<ul>
+
+    <li th:each="log : ${logs}">
+
+        <span th:text="${log.action} + ' by ' + ${log.performedBy} + ' at ' + ${log.timestamp}"></span>
+
+    </li>
+
+</ul>
+
+</body>
+
+</html>

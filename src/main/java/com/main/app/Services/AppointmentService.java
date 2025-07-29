@@ -47,4 +47,8 @@ public class AppointmentService {
     public Optional<Appointment> findById(Long appointmentId) {
         return appointmentRepository.findById(appointmentId);
     }
+
+    public List<Appointment> findAll() {
+        return appointmentRepository.findAll();
+    }
 }

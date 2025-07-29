@@ -70,7 +70,7 @@ public class DoctorController {
 
         Optional<Appointment> appointment = appointmentService.findById(appointmentId);
 
-        model.addAttribute("patient", appointment.get().getPatient());
+        model.addAttribute("patient", appointment.get());
 
         return "doctor/patient_info";
 

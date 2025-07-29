@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Register</title>
+
+    <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+
+<body>
+
+<h2>Register</h2>
+
+<form method="post" action="/register">
+
+    <label>Username: <input type="text" name="username"/></label><br/>
+
+    <label>Password: <input type="password" name="password"/></label><br/>
+
+    <label>Email: <input type="email" name="email"/></label><br/>
+
+    <label>Role:
+
+        <select name="role">
+
+            <option value="PATIENT">Patient</option>
+
+            <option value="DOCTOR">Doctor</option>
+
+            <option value="ADMIN">Admin</option>
+
+        </select>
+
+    </label><br/>
+
+    <button type="submit">Register</button>
+
+</form>
+
+</body>
+
+</html>

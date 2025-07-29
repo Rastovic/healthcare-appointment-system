@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Search Doctors</title>
+
+    <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+
+<body>
+
+<h2>Search Doctors</h2>
+
+<form method="get" action="/patient/search_doctors">
+
+    <label>Specialty: <input type="text" name="specialty"/></label>
+
+    <button type="submit">Search</button>
+
+</form>
+
+<ul>
+
+    <li th:each="doctor : ${doctors}">
+
+        <span th:text="${doctor.name} + ' (' + ${doctor.specialty} + ')'"></span>
+
+        <form method="post" action="/patient/book_appointment">
+
+            <input type="hidden" name="doctorId" th:value="${doctor.id}"/>
+
+            <label>Time: <input type="datetime-local" name="time"/></label>
+
+            <button type="submit">Book</button>
+
+        </form>
+
+    </li>
+
+</ul>
+
+</body>
+
+</html>
