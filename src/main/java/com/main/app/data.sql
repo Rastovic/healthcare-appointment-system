@@ -1,4 +1,4 @@
-INSERT INTO user (username, password, role, email) VALUES
+INSERT INTO users (username, password, role, email) VALUES
 
 ('patient1', '$2a$04$z8Q1b1Z6G5l8Q8Y8Z8Q8Z.8Q8Z8Q8Z8Q8Z8Q8Z8Q8Z8Q8Z8Q8Z8Q', 'PATIENT', 'patient1@example.com'),
 
@@ -36,4 +36,4 @@ INSERT INTO appointment (patient_id, doctor_id, appointment_time, status) VALUES
 
 INSERT INTO audit_log (action, performed_by, timestamp) VALUES
 
-('System initialized', 'admin', '2025-07-28 22:00:00'); 
+('System initialized', 'admin', '2025-07-28 22:00:00');

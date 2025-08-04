@@ -51,7 +51,7 @@ public class AdminController {
 
     public String manageUsers(Model model) {
 
-        model.addAttribute("users", userService.findAll());
+        model.addAttribute("users", userService.findAllUsers());
 
         return "admin/manage_users";
 

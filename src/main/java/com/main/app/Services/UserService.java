@@ -18,18 +18,12 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
 
-
-
-
-    public User registerUser(User user) {
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        return userRepository.save(user);
-
+    public void registerUser(User user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        userRepository.save(user);
     }
-
-
 
 
 
@@ -39,7 +33,7 @@ public class UserService {
 
     }
 
-   public List<User> findAll() {
+   public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 

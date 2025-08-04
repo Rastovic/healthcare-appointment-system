@@ -5,10 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 
 @Entity
 @Data
+@Table(name = "patient")
 public class Patient {
 
     @Id

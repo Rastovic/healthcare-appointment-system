@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .profile-info div {
+            font-size: 16px;
+            color: #555;
+        }
+        .profile-info div span {
+            font-weight: 600;
+            color: #333;
+        }
+        button, a.button {
+            display: block;
+            padding: 12px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover, a.button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .role-specific {
+            display: none;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="${user.role} + ' Profile'"></h2>
+    <div class="profile-info">
+        <div>Username: <span th:text="${user.username}"></span></div>
+        <div>Full Name: <span th:text="${user.fullName}"></span></div>
+        <div>Email: <span th:text="${user.email}"></span></div>
+        <div>Date of Birth: <span th:text="${user.dateOfBirth}"></span></div>
+        <div>Phone Number: <span th:text="${user.phoneNumber}"></span></div>
+        <div th:if="${user.role == 'PATIENT'}">
+            Medical History: <span th:text="${user.medicalHistory ?: 'None'}"></span>
+        </div>
+        <div th:if="${user.role == 'PATIENT'}">
+            Insurance Provider: <span th:text="${user.insuranceProvider ?: 'None'}"></span>
+        </div>
+        <div th:if="${user.role == 'DOCTOR'}">
+            License Number: <span th:text="${user.licenseNumber}"></span>
+        </div>
+        <div th:if="${user.role == 'DOCTOR'}">
+            Specialty: <span th:text="${user.specialty}"></span>
+        </div>
+        <div th:if="${user.role == 'ADMIN'}">
+            Permissions: <span th:text="${user.adminPermissions}"></span>
+        </div>
+    </div>
+    <div th:if="${user.role == 'PATIENT'}" id="patientSection" class="role-specific">
+        <a href="/appointments/request" class="button">Request Appointment</a>
+    </div>
+    <div th:if="${user.role == 'DOCTOR'}" id="doctorSection" class="role-specific">
+        <a href="/patients" class="button">View Patient Records</a>
+        <a href="/schedule" class="button">View Schedule</a>
+    </div>
+    <div th:if="${user.role == 'ADMIN'}" id="adminSection" class="role-specific">
+        <h3>Manage Users</h3>
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+            <tr th:each="otherUser : ${allUsers}">
+                <td th:text="${otherUser.username}"></td>
+                <td th:text="${otherUser.role}"></td>
+                <td><a th:href="@{'/users/edit/' + ${otherUser.id}}" class="button">Edit</a></td>
+            </tr>
+        </table>
+    </div>
+    <form action="/logout" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit">Logout</button>
+    </form>
+</div>
+</body>
+</html>
