@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,7 +62,10 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> registerUser(@RequestParam String username,
                                                             @RequestParam String password,
                                                             @RequestParam String email,
-                                                            @RequestParam String role) {
+                                                            @RequestParam String fullName,
+                                                            @RequestParam String phoneNumber,
+                                                            @RequestParam String role,
+                                                            @RequestParam LocalDate dateOfBirth) {
         Map<String, String> response = new HashMap<>();
 
         User user = new User();
@@ -69,6 +73,9 @@ public class AuthController {
         user.setPassword(securityConfig.passwordEncoder().encode(password));
         user.setEmail(email);
         user.setRole("PATIENT");
+        user.setDateOfBirth(dateOfBirth);
+        user.setFullName(fullName);
+        user.setPhoneNumber(phoneNumber);
 
         try {
             userService.registerUser(user);
