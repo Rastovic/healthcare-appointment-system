@@ -58,4 +58,7 @@ public class User {
     @Column
     private String adminPermissions;
 
+    @Column
+    private String profilePicture;
+
 }
