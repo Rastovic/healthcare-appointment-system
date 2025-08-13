@@ -1,12 +1,16 @@
 package com.main.app.Controllers;
 
 
+import com.main.app.Dto.DoctorDto;
 import org.springframework.ui.Model;
 import com.main.app.Model.Appointment;
+import com.main.app.Model.Doctor;
 import com.main.app.Services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.ArrayList;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,4 +90,19 @@ public class DoctorController {
 
     }
 
+    private DoctorDto convertToDoctorDto(Doctor doctor) {
+        DoctorDto doctorDto = new DoctorDto();
+        doctorDto.setId(doctor.getId());
+        doctorDto.setName(doctor.getName());
+        doctorDto.setSpecialty(doctor.getSpecialty());
+        return doctorDto;
+    }
+
+    private Doctor convertToDoctorEntity(DoctorDto doctorDto) {
+        Doctor doctor = new Doctor();
+        doctor.setId(doctorDto.getId());
+        doctor.setName(doctorDto.getName());
+        doctor.setSpecialty(doctorDto.getSpecialty());
+        return doctor;
+    }
 }

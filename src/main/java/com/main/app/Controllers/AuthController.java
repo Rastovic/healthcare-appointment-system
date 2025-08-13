@@ -3,6 +3,7 @@ package com.main.app.Controllers;
 import ch.qos.logback.core.boolex.Matcher;
 import com.main.app.Config.SecurityConfig;
 import com.main.app.Model.User;
+import com.main.app.Dto.UserDto;
 import com.main.app.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -25,10 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AuthController {
@@ -65,7 +63,7 @@ public class AuthController {
                                                             @RequestParam String fullName,
                                                             @RequestParam String phoneNumber,
                                                             @RequestParam String role,
-                                                            @RequestParam LocalDate dateOfBirth) {
+                                                            @RequestParam LocalDate dateOfBirth) { // Removed unused role parameter
         Map<String, String> response = new HashMap<>();
 
         User user = new User();
@@ -78,13 +76,15 @@ public class AuthController {
         user.setPhoneNumber(phoneNumber);
 
         try {
-            userService.registerUser(user);
+            User registeredUser = userService.registerUser(user);
+            Map<String, Object> successResponse = new HashMap<>();
             response.put("status", "success");
             response.put("message", "Registration successful! Please log in.");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+ successResponse.put("user", convertToDto(registeredUser));
+ return ResponseEntity.status(HttpStatus.CREATED).body(successResponse);
         } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Registration failed. Try a different username or email.");
+ response.put("message", "Registration failed. Try a different username or email. Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
@@ -125,18 +125,37 @@ public class AuthController {
 
     @GetMapping("/profile")
     public ModelAndView profile(HttpSession session) {
-        System.out.println("Accessing profile");
         ModelAndView mav = new ModelAndView("profile");
         User user = (User) session.getAttribute("user");
         if (user == null) {
-            System.out.println("No user in session, redirecting to login");
             return new ModelAndView("redirect:/login");
         }
-        mav.addObject("user", user);
+
+        // Convert User entity to UserDto before adding to model
+        mav.addObject("user", convertToDto(user));
+
         if ("ADMIN".equals(user.getRole())) {
-            mav.addObject("allUsers", userService.findAllUsers());
+            // Convert list of User entities to list of UserDtos
+            List<User> allUsers = userService.findAllUsers();
+            List<UserDto> allUserDtos = allUsers.stream()
+                    .map(this::convertToDto)
+                    .toList();
+            mav.addObject("allUsers", allUserDtos);
         }
         return mav;
+    }
+
+    // Helper method to convert User entity to UserDto
+    private UserDto convertToDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+        userDto.setFullName(user.getFullName());
+        userDto.setDateOfBirth(user.getDateOfBirth());
+        userDto.setPhoneNumber(user.getPhoneNumber());
+        userDto.setRole(user.getRole());
+        return userDto;
     }
 
 }

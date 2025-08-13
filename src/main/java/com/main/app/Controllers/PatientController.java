@@ -1,5 +1,6 @@
 package com.main.app.Controllers;
 
+import com.main.app.Dto.PatientDto;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Doctor;
 import org.springframework.ui.Model;
@@ -36,17 +37,12 @@ public class PatientController {
 
 
     @GetMapping("/profile")
-
     public String viewProfile(Authentication auth, Model model) {
-
         User user = userService.findByUsername(auth.getName());
-
         Patient patient = patientService.findByUserId(user.getId());
-
-        model.addAttribute("patient", patient);
-
+        PatientDto patientDto = convertToPatientDto(patient);
+        model.addAttribute("patient", patientDto);
         return "patient/profile";
-
     }
 
 
@@ -55,13 +51,11 @@ public class PatientController {
 
     @PostMapping("/profile")
 
-    public String updateProfile(@ModelAttribute Patient patient, Authentication auth) {
-
+    public String updateProfile(@ModelAttribute PatientDto patientDto, Authentication auth) {
         User user = userService.findByUsername(auth.getName());
-
+        Patient patient = convertToPatient(patientDto);
         patient.setUser(user);
-
-        patientService.savePatient(patient);
+        patientService.updatePatient(patient); // Assuming you have an update method in PatientService
 
         return "redirect:/patient/profile";
 
