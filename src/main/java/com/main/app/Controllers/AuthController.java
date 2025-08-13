@@ -1,9 +1,12 @@
 package com.main.app.Controllers;
 
 import ch.qos.logback.core.boolex.Matcher;
-import com.main.app.Config.SecurityConfig;
+import com.main.app.Config.SecurityConfig;import com.main.app.Model.Doctor;
+import com.main.app.Model.Patient;
 import com.main.app.Model.User;
 import com.main.app.Dto.UserDto;
+import com.main.app.Services.DoctorService;
+import com.main.app.Services.PatientService;
 import com.main.app.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -37,6 +40,12 @@ public class AuthController {
     @Autowired
     private SecurityConfig securityConfig;
 
+    @Autowired
+    private DoctorService doctorService;
+
+    @Autowired
+    private PatientService patientService;
+
     @GetMapping("/login")
     public String login() {
         return "login";
@@ -61,12 +70,22 @@ public class AuthController {
         user.setUsername(username);
         user.setPassword(securityConfig.passwordEncoder().encode(password));
         user.setEmail(email);
-        user.setRole("PATIENT");
+        user.setRole(role.toUpperCase()); // Use the role from the request
         user.setDateOfBirth(dateOfBirth);
         user.setFullName(fullName);
         user.setPhoneNumber(phoneNumber);
 
         try {
+            // Check the role and create the corresponding entity
+            if ("DOCTOR".equals(role.toUpperCase())) {
+                Doctor doctor = new Doctor();
+                doctor.setUser(user); // Associate the user with the doctor
+                doctorService.saveDoctor(doctor); // Save the doctor
+            } else if ("PATIENT".equals(role.toUpperCase())) {
+                Patient patient = new Patient();
+                patient.setUser(user); // Associate the user with the patient
+                patientService.savePatient(patient); // Save the patient
+            }
             User registeredUser = userService.registerUser(user);
             response.put("status", "success");
             response.put("message", "Registration successful! Please log in.");
