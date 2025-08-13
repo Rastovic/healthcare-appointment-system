@@ -38,19 +38,6 @@ public class PatientController {
 
 
 
-
-    // Placeholder method for creating patient profile
-    @PostMapping("/createProfile")
-    public String createPatientProfile(@ModelAttribute PatientDto patientDto, Authentication auth) {
-        User user = userService.findByUsername(auth.getName());
-        if (user != null) {
-            patientService.createPatientProfile(patientDto, user);
-        }
-        // Redirect to profile page after creation
-        return "redirect:/patient/profile";
-    }
-
-
     @GetMapping("/profile")
     public String viewProfile(Authentication auth, Model model) {
         User user = (User) auth.getPrincipal(); // Get User from Authentication principal

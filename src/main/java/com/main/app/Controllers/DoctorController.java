@@ -154,19 +154,4 @@ public class DoctorController {
         appointmentDto.setDoctorName(appointment.getDoctor() != null ? appointment.getDoctor().getFirstName() : "N/A");
         return appointmentDto;
     }
-
- // Placeholder method for creating a doctor profile
- @PostMapping("/create_profile")
- public String createDoctorProfile(DoctorDto doctorDto, Authentication auth) {
- User user = userService.findByUsername(auth.getName());
- if (user == null) {
- return "redirect:/login"; // Redirect to login if user not found
- }
-
-        // Assuming doctorDto has the necessary fields for creating a Doctor profile
-        // The service method will handle associating the Doctor with the User
- doctorService.createDoctorProfile(doctorDto, user);
-
- return "redirect:/doctor/profile";
-    }
 }

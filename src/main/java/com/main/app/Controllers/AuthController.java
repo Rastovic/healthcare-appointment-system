@@ -55,14 +55,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@RequestParam String username,
+    public ResponseEntity registerUser(@RequestParam String username,
                                                             @RequestParam String password,
                                                             @RequestParam String email,
                                                             @RequestParam String fullName,
                                                             @RequestParam String phoneNumber,
                                                             @RequestParam String role,
-                                                            @RequestParam LocalDate dateOfBirth,
-                                                            RedirectAttributes redirectAttributes) {
+                                                            @RequestParam LocalDate dateOfBirth) {
+        Map<String, Object> response = new HashMap<>();
 
         User user = new User();
         user.setUsername(username);
@@ -74,23 +74,28 @@ public class AuthController {
         user.setPhoneNumber(phoneNumber);
 
         try {
-            userService.registerUser(user);
-            // Redirect based on user role after successful registration
-            if ("PATIENT".equals(user.getRole())) {
-                return "redirect:/patient/complete_profile";
-            } else if ("DOCTOR".equals(user.getRole())) {
-                return "redirect:/doctor/complete_profile";
-            } else if ("ADMIN".equals(user.getRole())) {
-                return "redirect:/admin/panel";
-            } else {
-                return "redirect:/"; // Default redirect
+            // Check the role and create the corresponding entity
+            if ("DOCTOR".equals(role.toUpperCase())) {
+                Doctor doctor = new Doctor();
+                doctor.setUser(user); // Associate the user with the doctor
+                doctorService.saveDoctor(doctor); // Save the doctor
+            } else if ("PATIENT".equals(role.toUpperCase())) {
+                Patient patient = new Patient();
+                patient.setUser(user); // Associate the user with the patient
+                patientService.savePatient(patient); // Save the patient
             }
+            User registeredUser = userService.registerUser(user);
+            response.put("status", "success");
+            response.put("message", "Registration successful! Please log in.");
+            response.put("user", convertToDto(registeredUser));
+ return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            // Add error message to flash attributes and redirect back to registration
-            redirectAttributes.addFlashAttribute("error", "Registration failed. Try a different username or email.");
-            return "redirect:/register";
+            response.put("status", "error");
+            response.put("message", "Registration failed. Try a different username or email. Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
     @PostMapping("/doLogin")
     public String loginUser(@RequestParam String username,
                             @RequestParam String password,
