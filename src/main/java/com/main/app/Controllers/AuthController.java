@@ -54,7 +54,7 @@ public class AuthController {
                                                             @RequestParam String fullName,
                                                             @RequestParam String phoneNumber,
                                                             @RequestParam String role,
-                                                            @RequestParam LocalDate dateOfBirth) { // Removed unused role parameter
+                                                            @RequestParam LocalDate dateOfBirth) {
         Map<String, Object> response = new HashMap<>();
 
         User user = new User();
@@ -65,16 +65,16 @@ public class AuthController {
         user.setDateOfBirth(dateOfBirth);
         user.setFullName(fullName);
         user.setPhoneNumber(phoneNumber);
-        user.setProfilePicture("/local/picture");
 
         try {
+            User registeredUser = userService.registerUser(user);
             response.put("status", "success");
             response.put("message", "Registration successful! Please log in.");
-            userService.registerUser(user); // Assuming registerUser returns void
+            response.put("user", convertToDto(registeredUser));
  return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
- response.put("status", "error");
- response.put("message", "Registration failed. Try a different username or email. Error: " + e.getMessage());
+            response.put("status", "error");
+            response.put("message", "Registration failed. Try a different username or email. Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

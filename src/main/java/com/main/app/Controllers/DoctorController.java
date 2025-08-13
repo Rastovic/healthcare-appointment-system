@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Doctor;
 import com.main.app.Model.User;
+import com.main.app.Services.DoctorService;
 import com.main.app.Services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +39,9 @@ public class DoctorController {
 
  @Autowired
  private UserService userService;
+
+ @Autowired
+ private DoctorService doctorService; // Autowire DoctorService
 
     // Endpoint to get all appointments for the authenticated doctor
     @GetMapping("/all_appointments/{doctorId}")
@@ -70,7 +74,12 @@ public class DoctorController {
         Appointment appointment = new Appointment();
         appointment.setId(appointmentId);
         appointment.setStatus(status);
-
+ // Fetch the existing Doctor entity
+ Optional<Doctor> doctorOptional = doctorService.findById(doctorId); // Assuming doctorId is available or passed
+ if (doctorOptional.isPresent()) {
+ appointment.setDoctor(doctorOptional.get());
+ } else {
+ // Handle case where doctor is not found (e.g., return error or redirect)
         appointmentService.updateAppointment(appointment);
 
         return "redirect:/doctor/appointments";
@@ -97,15 +106,19 @@ public class DoctorController {
  public String viewDoctorProfile(Authentication auth, Model model) { // Renamed for clarity
  User user = userService.findByUsername(auth.getName());
  if (user == null) {
- return "redirect:/login"; // Or an error page
-
- // Fetch the associated Doctor entity
- Doctor doctor = user.getDoctor(); // Assuming a one-to-one relationship and getter
- if (doctor == null) {
- // Handle case where user is a DOCTOR but no associated Doctor entity exists
- return "redirect:/error"; // Or a specific page indicating setup needed
+ return "redirect:/login"; // Redirect to login if user not found (shouldn't happen with @PreAuthorize but good practice)
  }
+
+ // Fetch the associated Doctor entity based on User ID
+ Optional<Doctor> doctorOptional = doctorService.findByUserId(user.getId()); // Assuming findByUserId method exists in DoctorService
+ if (!doctorOptional.isPresent()) {
+ // Handle case where user is a DOCTOR but no associated Doctor entity exists
+ // This might require an initial setup flow for doctors
+ return "redirect:/error"; // Example: redirect to an error or setup page
+ }
+ Doctor doctor = doctorOptional.get();
  model.addAttribute("user", convertToUserDto(user));
+
  model.addAttribute("doctor", convertToDoctorDto(doctor));
  return "doctor/doctor_profile";
  }

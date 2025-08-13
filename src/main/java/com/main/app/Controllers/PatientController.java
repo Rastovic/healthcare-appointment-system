@@ -150,4 +150,24 @@ public class PatientController {
 
     }
 
+ private PatientDto convertToPatientDto(Patient patient) {
+ PatientDto patientDto = new PatientDto();
+ patientDto.setId(patient.getId());
+ patientDto.setName(patient.getName());
+ patientDto.setDob(patient.getDob());
+ patientDto.setAddress(patient.getAddress());
+ // Assuming User details are needed in the patient profile,
+ // you might add UserDto here or fetch them separately if required
+ return patientDto;
+ }
+
+ private Patient convertToPatient(PatientDto patientDto) {
+ Patient patient = new Patient();
+ patient.setId(patientDto.getId());
+ patient.setName(patientDto.getName());
+ patient.setDob(patientDto.getDob());
+ patient.setAddress(patientDto.getAddress());
+ // The User association will be set in the controller method
+ return patient;
+ }
 }
