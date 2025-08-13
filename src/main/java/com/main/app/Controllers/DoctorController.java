@@ -31,7 +31,6 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/doctor")
 @PreAuthorize("hasRole('DOCTOR')") // Apply role restriction at the class level
-
 public class DoctorController {
 
     @Autowired
@@ -66,32 +65,21 @@ public class DoctorController {
     }
 
 
-
-
-
     @PostMapping("/update_appointment")
     public String updateAppointment(@RequestParam Long appointmentId, @RequestParam String status) {
         Appointment appointment = new Appointment();
         appointment.setId(appointmentId);
         appointment.setStatus(status);
- // Fetch the existing Doctor entity
- Optional<Doctor> doctorOptional = doctorService.findById(doctorId); // Assuming doctorId is available or passed
- if (doctorOptional.isPresent()) {
- appointment.setDoctor(doctorOptional.get());
- } else {
- // Handle case where doctor is not found (e.g., return error or redirect)
+         // Fetch the existing Doctor entity
+         Optional<Doctor> doctorOptional = doctorService.findById(appointment.getDoctor().getId()); // Assuming doctorId is available or passed
+        doctorOptional.ifPresent(appointment::setDoctor);
         appointmentService.updateAppointment(appointment);
 
         return "redirect:/doctor/appointments";
-
     }
 
 
-
-
-
     @GetMapping("/patient_info")
-
     public String viewPatientInfo(@RequestParam Long appointmentId, Model model) { // Consider access control to ensure doctor is assigned to this appointment
         Optional<Appointment> appointment = appointmentService.findById(appointmentId);
 
@@ -101,28 +89,27 @@ public class DoctorController {
 
     }
 
- @GetMapping("/profile")
-// @PreAuthorize("hasRole('DOCTOR')") // Annotation already present, no change needed here
- public String viewDoctorProfile(Authentication auth, Model model) { // Renamed for clarity
- User user = userService.findByUsername(auth.getName());
- if (user == null) {
- return "redirect:/login"; // Redirect to login if user not found (shouldn't happen with @PreAuthorize but good practice)
- }
+     @GetMapping("/profile")
+     public String viewDoctorProfile(Authentication auth, Model model) {
+         User user = userService.findByUsername(auth.getName());
+         if (user == null) {
+             return "redirect:/login"; // Redirect to login if user not found (shouldn't happen with @PreAuthorize but good practice)
+         }
 
- // Fetch the associated Doctor entity based on User ID
- Optional<Doctor> doctorOptional = doctorService.findByUserId(user.getId()); // Assuming findByUserId method exists in DoctorService
- if (!doctorOptional.isPresent()) {
- // Handle case where user is a DOCTOR but no associated Doctor entity exists
- // This might require an initial setup flow for doctors
- return "redirect:/error"; // Example: redirect to an error or setup page
- }
- Doctor doctor = doctorOptional.get();
- model.addAttribute("user", convertToUserDto(user));
+         // Fetch the associated Doctor entity based on User ID
+         Optional<Doctor> doctorOptional = doctorService.findById(user.getId()); // Assuming findByUserId method exists in DoctorService
+         if (doctorOptional.isEmpty()) {
+         // Handle case where user is a DOCTOR but no associated Doctor entity exists
+         // This might require an initial setup flow for doctors
+         return "redirect:/error"; // Example: redirect to an error or setup page
+         }
+         Doctor doctor = doctorOptional.get();
+         model.addAttribute("user", convertToUserDto(user));
 
- model.addAttribute("doctor", convertToDoctorDto(doctor));
- return "doctor/doctor_profile";
- }
- }
+         model.addAttribute("doctor", convertToDoctorDto(doctor));
+         return "doctor/doctor_profile";
+
+     }
     private DoctorDto convertToDoctorDto(Doctor doctor) {
         DoctorDto doctorDto = new DoctorDto();
         doctorDto.setId(doctor.getId());

@@ -1,11 +1,16 @@
 package com.main.app.Model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
 @Table(name = "doctor")
 public class Doctor {
 
