@@ -27,6 +27,7 @@ public class Patient {
 
     private String address;
 
+    private String phoneNumber;
     @OneToOne
     private User user;
 

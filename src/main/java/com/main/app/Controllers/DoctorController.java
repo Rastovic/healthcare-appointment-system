@@ -113,7 +113,8 @@ public class DoctorController {
     private DoctorDto convertToDoctorDto(Doctor doctor) {
         DoctorDto doctorDto = new DoctorDto();
         doctorDto.setId(doctor.getId());
-        doctorDto.setName(doctor.getName());
+        doctorDto.setFirstName(doctor.getFirstName());
+        doctorDto.setLastName(doctor.getLastName());
         doctorDto.setSpecialty(doctor.getSpecialty());
         return doctorDto;
     }
@@ -121,7 +122,8 @@ public class DoctorController {
     private Doctor convertToDoctorEntity(DoctorDto doctorDto) {
         Doctor doctor = new Doctor();
         doctor.setId(doctorDto.getId());
-        doctor.setName(doctorDto.getName());
+        doctorDto.setFirstName(doctor.getFirstName());
+        doctorDto.setLastName(doctor.getLastName());
         doctor.setSpecialty(doctorDto.getSpecialty());
         return doctor;
     }
@@ -148,7 +150,8 @@ public class DoctorController {
         appointmentDto.setAppointmentTime(appointment.getAppointmentTime());
         appointmentDto.setStatus(appointment.getStatus());
         appointmentDto.setPatientName(appointment.getPatient() != null ? appointment.getPatient().getName() : "N/A");
-        appointmentDto.setDoctorName(appointment.getDoctor() != null ? appointment.getDoctor().getName() : "N/A");
+        appointmentDto.setDoctorName(appointment.getDoctor() != null ? appointment.getDoctor().getFirstName() : "N/A");
+        appointmentDto.setDoctorName(appointment.getDoctor() != null ? appointment.getDoctor().getFirstName() : "N/A");
         return appointmentDto;
     }
 

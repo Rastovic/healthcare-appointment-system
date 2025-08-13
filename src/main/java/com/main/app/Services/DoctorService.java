@@ -33,6 +33,9 @@ public class DoctorService {
 
     }
 
+    public void saveDoctor(Doctor doctor) {
+        doctorRepository.save(doctor);
+    }
 
     public Optional<Doctor> findById(Long doctorId){
      return doctorRepository.findById(doctorId);
