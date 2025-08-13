@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register", "/login", "/doLogin", "/css/**").permitAll()
                         .requestMatchers("/profile").authenticated()
+                        .requestMatchers("/doctor/complete_profile", "/patient/create_profile").authenticated()
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout

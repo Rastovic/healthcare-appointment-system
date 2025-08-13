@@ -194,18 +194,9 @@
                     method: 'POST',
                     body: formData
                 });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    document.getElementById('successMessage').textContent = result.message;
-                    document.getElementById('successMessage').style.display = 'block';
-                    setTimeout(() => {
-                        window.location.href = '/login'; // Redirect after 3 seconds
-                    }, 1000);
-                } else {
-                    document.getElementById('errorMessage').textContent = result.message;
-                    document.getElementById('errorMessage').style.display = 'block';
-                }
+                // The server will handle the redirect, so no need to parse JSON
+                // or manually redirect here based on a JSON response.
+                // The browser will automatically follow the redirect.
             } catch (error) {
                 document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
                 document.getElementById('errorMessage').style.display = 'block';
