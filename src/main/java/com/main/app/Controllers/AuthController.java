@@ -37,24 +37,15 @@ public class AuthController {
     @Autowired
     private SecurityConfig securityConfig;
 
-
-
     @GetMapping("/login")
     public String login() {
-
         return "login";
-
     }
-
-
 
     @GetMapping("/register")
     public String register() {
-
         return "register";
-
     }
-
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestParam String username,
@@ -74,6 +65,7 @@ public class AuthController {
         user.setDateOfBirth(dateOfBirth);
         user.setFullName(fullName);
         user.setPhoneNumber(phoneNumber);
+        user.setProfilePicture("/local/picture");
 
         try {
             User registeredUser = userService.registerUser(user);
@@ -109,7 +101,6 @@ public class AuthController {
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
-            // ✅ Add this line:
             session.setAttribute("user", user);
 
             // Redirect based on user role
@@ -127,10 +118,6 @@ public class AuthController {
             return "redirect:/login";
         }
     }
-
-
-
-
 
     @GetMapping("/profile")
     public ModelAndView profile(HttpSession session) {
