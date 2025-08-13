@@ -1,12 +1,17 @@
 package com.main.app.Controllers;
 
 
+import com.main.app.Dto.UserDto;
 import com.main.app.Dto.DoctorDto;
 import org.springframework.ui.Model;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Doctor;
+import com.main.app.Model.User;
 import com.main.app.Services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import com.main.app.Services.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -26,6 +31,9 @@ public class DoctorController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+ @Autowired
+ private UserService userService;
 
     @GetMapping("/all_appointments/{doctorId}")
     public String getAllAppointments(@PathVariable Long doctorId, Model model) {
@@ -90,6 +98,24 @@ public class DoctorController {
 
     }
 
+ @GetMapping("/profile")
+// @PreAuthorize("hasRole('DOCTOR')") // Annotation already present, no change needed here
+ public String viewProfile(Authentication auth, Model model) {
+ User user = userService.findByUsername(auth.getName());
+ if (user == null) {
+ return "redirect:/login"; // Or an error page
+ }
+
+ // Fetch the associated Doctor entity
+ Doctor doctor = user.getDoctor(); // Assuming a one-to-one relationship and getter
+ if (doctor == null) {
+ // Handle case where user is a DOCTOR but no associated Doctor entity exists
+ return "redirect:/error"; // Or a specific page indicating setup needed
+ }
+ model.addAttribute("user", convertToUserDto(user));
+ model.addAttribute("doctor", convertToDoctorDto(doctor));
+ return "doctor/doctor_profile";
+ }
     private DoctorDto convertToDoctorDto(Doctor doctor) {
         DoctorDto doctorDto = new DoctorDto();
         doctorDto.setId(doctor.getId());
@@ -104,5 +130,16 @@ public class DoctorController {
         doctor.setName(doctorDto.getName());
         doctor.setSpecialty(doctorDto.getSpecialty());
         return doctor;
+    }
+
+    // Helper method to convert User entity to UserDto (assuming it's needed here or accessible)
+    private UserDto convertToUserDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setFullName(user.getFullName());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole());
+        return userDto;
     }
 }

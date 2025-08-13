@@ -9,8 +9,10 @@ import com.main.app.Services.AuditLogService;
 import com.main.app.Services.PatientService;
 import com.main.app.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -42,13 +44,27 @@ public class AdminController {
 
 
     @GetMapping("/panel")
-
-    public String adminPanel() {
-
+ @PreAuthorize("hasRole('ADMIN')")
+    public String adminPanel(Authentication authentication, Model model) {
+        User user = userService.findByUsername(authentication.getName());
+        if (user != null) {
+            model.addAttribute("user", convertToUserDto(user));
+            // You might add other admin-specific data to the model here
+            // model.addAttribute("userCount", userService.countUsers());
+            // model.addAttribute("recentLogs", auditLogService.findRecentLogs());
+        }
         return "admin/panel";
-
     }
 
+    private UserDto convertToUserDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+        userDto.setFullName(user.getFullName());
+        userDto.setRole(user.getRole());
+        return userDto;
+    }
 
 
 

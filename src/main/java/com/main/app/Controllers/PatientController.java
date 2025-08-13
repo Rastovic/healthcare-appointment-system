@@ -1,6 +1,7 @@
 package com.main.app.Controllers;
 
 import com.main.app.Dto.PatientDto;
+import com.main.app.Dto.UserDto;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Doctor;
 import org.springframework.ui.Model;
@@ -11,6 +12,7 @@ import com.main.app.Services.DoctorService;
 import com.main.app.Services.PatientService;
 import com.main.app.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +39,11 @@ public class PatientController {
 
 
     @GetMapping("/profile")
-    public String viewProfile(Authentication auth, Model model) {
-        User user = userService.findByUsername(auth.getName());
+ @PreAuthorize("hasRole('PATIENT')") // Added PreAuthorize annotation
+ public String viewProfile(Authentication auth, Model model) {
+        User user = (User) auth.getPrincipal(); // Get User from Authentication principal
         Patient patient = patientService.findByUserId(user.getId());
-        PatientDto patientDto = convertToPatientDto(patient);
+ PatientDto patientDto = convertToPatientDto(patient);
         model.addAttribute("patient", patientDto);
         return "patient/profile";
     }

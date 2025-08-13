@@ -112,7 +112,16 @@ public class AuthController {
             // ✅ Add this line:
             session.setAttribute("user", user);
 
-            return "redirect:/profile";
+            // Redirect based on user role
+            if ("PATIENT".equals(user.getRole())) {
+                return "redirect:/patient/profile";
+            } else if ("DOCTOR".equals(user.getRole())) {
+                return "redirect:/doctor/profile";
+            } else if ("ADMIN".equals(user.getRole())) {
+                return "redirect:/admin/panel";
+            } else { // Default redirect or error page
+                return "redirect:/";
+            }
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid username or password.");
             return "redirect:/login";
