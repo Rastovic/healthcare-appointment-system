@@ -1,53 +1,58 @@
 body {
-
-font-family: Arial, sans-serif;
-
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 margin: 20px;
-
+ background: linear-gradient(to right, #1a2a3a, #2a3a4a);
+ color: #c0c0c0;
 }
-
 h2 {
-
-color: #333;
-
+color: #00c0f0;
+ text-align: center;
+ margin-bottom: 30px;
 }
-
 form {
-
 margin: 10px 0;
-
+ background-color: rgba(0, 0, 0, 0.2);
+ padding: 20px;
+ border-radius: 8px;
+ box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
-
 button {
-
 padding: 5px 10px;
-
-background-color: #007bff;
-
-color: white;
-
-border: none;
-
-cursor: pointer;
-
+ background: linear-gradient(to right, #007bff, #00c0f0);
+ color: white;
+ border: none;
+ cursor: pointer;
+ border-radius: 4px;
+ transition: background-color 0.3s ease;
 }
-
 button:hover {
-
-background-color: #0056b3;
-
+ background: linear-gradient(to right, #0056b3, #00a0d0);
 }
-
 ul {
-
 list-style: none;
-
 padding: 0;
-
+}
+li {
+margin: 10px 0;
 }
 
-li {
+table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 20px;
+}
 
-margin: 10px 0;
+th, td {
+ padding: 12px;
+ text-align: left;
+ border-bottom: 1px solid rgba(0, 192, 240, 0.2);
+}
 
-} 
+th {
+ background-color: rgba(0, 192, 240, 0.2);
+ color: #00c0f0;
+}
+
+.appointments-table tbody tr:nth-child(even) {
+ background-color: rgba(255, 255, 255, 0.05);
+}

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -21,6 +22,15 @@ public class DoctorController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @GetMapping("/all_appointments/{doctorId}")
+    public String getAllAppointments(@PathVariable Long doctorId, Model model) {
+        // VULNERABLE: No authentication check (A01) - This should be addressed for security
+        List<Appointment> appointments = appointmentService.findByDoctorId(doctorId);
+        model.addAttribute("appointments", appointments);
+        return "doctor/doctor_appointments";
+    }
+
 
 
 

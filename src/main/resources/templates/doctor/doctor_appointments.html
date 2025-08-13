@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor's Appointments</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="futuristic-header">
+        <div class="container">
+            <h1>QuantumCare</h1>
+            <nav>
+                <ul>
+                    <li><a href="/doctor/panel">Dashboard</a></li>
+                    <li><a href="/doctor/appointments">Appointments</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container futuristic-container">
+        <h2>Your Appointments</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appointment : ${appointments}">
+                        <td th:text="${appointment.patient.name}">Patient Name</td>
+                        <td th:text="${appointment.date}">Date</td>
+                        <td th:text="${appointment.time}">Time</td>
+                        <td th:text="${appointment.status}">Status</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="futuristic-footer">
+        <div class="container">
+            <p>&copy; 2023 QuantumCare</p>
+        </div>
+    </footer>
+</body>
+</html>
