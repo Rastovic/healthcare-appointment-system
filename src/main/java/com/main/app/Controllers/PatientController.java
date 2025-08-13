@@ -39,8 +39,7 @@ public class PatientController {
 
 
     @GetMapping("/profile")
- @PreAuthorize("hasRole('PATIENT')") // Added PreAuthorize annotation
- public String viewProfile(Authentication auth, Model model) {
+    public String viewProfile(Authentication auth, Model model) {
         User user = (User) auth.getPrincipal(); // Get User from Authentication principal
         Patient patient = patientService.findByUserId(user.getId());
          PatientDto patientDto = convertToPatientDto(patient);
@@ -53,7 +52,6 @@ public class PatientController {
 
 
     @PostMapping("/profile")
-
     public String updateProfile(@ModelAttribute PatientDto patientDto, Authentication auth) {
         User user = userService.findByUsername(auth.getName());
         Patient patient = convertToPatient(patientDto);
@@ -69,7 +67,6 @@ public class PatientController {
 
 
     @GetMapping("/search_doctors")
-
     public String searchDoctors(@RequestParam String specialty, Model model) {
 
         List<Doctor> doctors = doctorService.findBySpecialty(specialty); // VULNERABLE: No sanitization (A03)
@@ -85,7 +82,6 @@ public class PatientController {
 
 
     @PostMapping("/book_appointment")
-
     public String bookAppointment(@RequestParam Long doctorId, @RequestParam String time, Authentication auth) {
 
         User user = userService.findByUsername(auth.getName());
@@ -113,7 +109,6 @@ public class PatientController {
 
 
     @GetMapping("/appointment_history")
-
     public String appointmentHistory(Authentication auth, Model model) {
 
         User user = userService.findByUsername(auth.getName());
@@ -133,7 +128,6 @@ public class PatientController {
 
 
     @PostMapping("/cancel_appointment")
-
     public String cancelAppointment(@RequestParam Long appointmentId) {
 
         // VULNERABLE: No ownership check (A01)
@@ -150,24 +144,24 @@ public class PatientController {
 
     }
 
- private PatientDto convertToPatientDto(Patient patient) {
- PatientDto patientDto = new PatientDto();
- patientDto.setId(patient.getId());
- patientDto.setName(patient.getName());
- patientDto.setDob(patient.getDob());
- patientDto.setAddress(patient.getAddress());
- // Assuming User details are needed in the patient profile,
- // you might add UserDto here or fetch them separately if required
- return patientDto;
- }
+     private PatientDto convertToPatientDto(Patient patient) {
+         PatientDto patientDto = new PatientDto();
+         patientDto.setId(patient.getId());
+         patientDto.setName(patient.getName());
+         patientDto.setDob(patient.getDob());
+         patientDto.setAddress(patient.getAddress());
+         // Assuming User details are needed in the patient profile,
+         // you might add UserDto here or fetch them separately if required
+         return patientDto;
+     }
 
- private Patient convertToPatient(PatientDto patientDto) {
- Patient patient = new Patient();
- patient.setId(patientDto.getId());
- patient.setName(patientDto.getName());
- patient.setDob(patientDto.getDob());
- patient.setAddress(patientDto.getAddress());
- // The User association will be set in the controller method
- return patient;
- }
+     private Patient convertToPatient(PatientDto patientDto) {
+         Patient patient = new Patient();
+         patient.setId(patientDto.getId());
+         patient.setName(patientDto.getName());
+         patient.setDob(patientDto.getDob());
+         patient.setAddress(patientDto.getAddress());
+     // The User association will be set in the controller method
+     return patient;
+    }
 }

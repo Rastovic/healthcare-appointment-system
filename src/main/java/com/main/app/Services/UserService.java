@@ -18,11 +18,12 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
 
-    public void registerUser(User user) {
+    public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
         userRepository.save(user);
+        return user;
     }
 
 

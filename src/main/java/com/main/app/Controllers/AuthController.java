@@ -1,19 +1,15 @@
 package com.main.app.Controllers;
 
-import ch.qos.logback.core.boolex.Matcher;
 import com.main.app.Config.SecurityConfig;
 import com.main.app.Model.User;
 import com.main.app.Dto.UserDto;
 import com.main.app.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Status;
-import org.apache.logging.log4j.status.StatusData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> registerUser(@RequestParam String username,
+    public ResponseEntity registerUser(@RequestParam String username,
                                                             @RequestParam String password,
                                                             @RequestParam String email,
                                                             @RequestParam String fullName,
