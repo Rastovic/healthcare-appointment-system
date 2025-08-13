@@ -58,7 +58,7 @@ public class PatientController {
         User user = userService.findByUsername(auth.getName());
         Patient patient = convertToPatient(patientDto);
         patient.setUser(user);
-        patientService.updatePatient(patient); // Assuming you have an update method in PatientService
+        patientService.savePatient(patient);
 
         return "redirect:/patient/profile";
 
