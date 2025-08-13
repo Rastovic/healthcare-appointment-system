@@ -55,14 +55,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity registerUser(@RequestParam String username,
+    public String registerUser(@RequestParam String username,
                                                             @RequestParam String password,
                                                             @RequestParam String email,
                                                             @RequestParam String fullName,
                                                             @RequestParam String phoneNumber,
                                                             @RequestParam String role,
-                                                            @RequestParam LocalDate dateOfBirth) {
-        Map<String, Object> response = new HashMap<>();
+                                                            @RequestParam LocalDate dateOfBirth,
+                                                            RedirectAttributes redirectAttributes) {
 
         User user = new User();
         user.setUsername(username);
@@ -74,16 +74,23 @@ public class AuthController {
         user.setPhoneNumber(phoneNumber);
 
         try {
-            User registeredUser = userService.registerUser(user);
-            response.put("user", convertToDto(registeredUser));
- return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            userService.registerUser(user);
+            // Redirect based on user role after successful registration
+            if ("PATIENT".equals(user.getRole())) {
+                return "redirect:/patient/complete_profile";
+            } else if ("DOCTOR".equals(user.getRole())) {
+                return "redirect:/doctor/complete_profile";
+            } else if ("ADMIN".equals(user.getRole())) {
+                return "redirect:/admin/panel";
+            } else {
+                return "redirect:/"; // Default redirect
+            }
         } catch (Exception e) {
-            response.put("status", "error");
-            response.put("message", "Registration failed. Try a different username or email. Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            // Add error message to flash attributes and redirect back to registration
+            redirectAttributes.addFlashAttribute("error", "Registration failed. Try a different username or email.");
+            return "redirect:/register";
         }
     }
-
     @PostMapping("/doLogin")
     public String loginUser(@RequestParam String username,
                             @RequestParam String password,
