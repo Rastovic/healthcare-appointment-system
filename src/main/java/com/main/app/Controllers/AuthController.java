@@ -74,19 +74,7 @@ public class AuthController {
         user.setPhoneNumber(phoneNumber);
 
         try {
-            // Check the role and create the corresponding entity
-            if ("DOCTOR".equals(role.toUpperCase())) {
-                Doctor doctor = new Doctor();
-                doctor.setUser(user); // Associate the user with the doctor
-                doctorService.saveDoctor(doctor); // Save the doctor
-            } else if ("PATIENT".equals(role.toUpperCase())) {
-                Patient patient = new Patient();
-                patient.setUser(user); // Associate the user with the patient
-                patientService.savePatient(patient); // Save the patient
-            }
             User registeredUser = userService.registerUser(user);
-            response.put("status", "success");
-            response.put("message", "Registration successful! Please log in.");
             response.put("user", convertToDto(registeredUser));
  return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
