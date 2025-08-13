@@ -95,7 +95,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
-
     @PostMapping("/doLogin")
     public String loginUser(@RequestParam String username,
                             @RequestParam String password,
