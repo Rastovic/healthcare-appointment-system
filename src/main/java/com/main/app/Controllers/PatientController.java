@@ -43,7 +43,7 @@ public class PatientController {
  public String viewProfile(Authentication auth, Model model) {
         User user = (User) auth.getPrincipal(); // Get User from Authentication principal
         Patient patient = patientService.findByUserId(user.getId());
- PatientDto patientDto = convertToPatientDto(patient);
+         PatientDto patientDto = convertToPatientDto(patient);
         model.addAttribute("patient", patientDto);
         return "patient/profile";
     }
