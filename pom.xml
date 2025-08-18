@@ -15,9 +15,7 @@
     <name>healthcare-appointment-system</name>
 	<description>healthcare app</description>
 	<url/>
-	<licenses>
-		<license/>
-	</licenses>
+	<licenses><license/></licenses>
 	<developers>
 		<developer/>
 	</developers>
@@ -140,12 +138,17 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<excludes>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
 					<mainClass>com.main.app.HealthcareAppointmentSystemApplication</mainClass>
 					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
+						<exclude><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId></exclude>
 					</excludes>
 				</configuration>
 			</plugin>
