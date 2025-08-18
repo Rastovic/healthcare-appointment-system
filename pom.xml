@@ -23,11 +23,6 @@
 	</developers>
     <modules>
         <module>untitled</module>
-        <module>untitled1</module>
-    </modules>
-    <scm>
-		<connection/>
-		<developerConnection/>
 		<tag/>
 		<url/>
 	</scm>
@@ -137,6 +132,15 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<excludes>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.main.app.HealthcareAppointmentSystemApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
