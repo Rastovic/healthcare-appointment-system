@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="date"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 14px;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        input[type="tel"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+            outline: none;
+        }
+        button {
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        .message {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .role-specific {
+            display: none;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Register</h2>
+    <div id="errorMessage" class="message error" style="display: none;"></div>
+    <div id="successMessage" class="message success" style="display: none;"></div>
+    <form id="registerForm" method="post" action="/register">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <label>
+            Username:
+            <input type="text" name="username" placeholder="Enter your username" required />
+        </label>
+        <label>
+            Password:
+            <input type="password" name="password" placeholder="Enter your password" required />
+        </label>
+        <label>
+            Email:
+            <input type="email" name="email" placeholder="Enter your email" required />
+        </label>
+        <label>
+            First Name:
+            <input type="text" name="firstName" placeholder="Enter your first name" required />
+        </label>
+        <label>
+            Full Name:
+            <input type="text" name="lastName" placeholder="Enter your last name" required />
+        </label>
+        <label>
+            Date of Birth:
+            <input type="date" name="dateOfBirth" required />
+        </label>
+        <label>
+            Role:
+            <select name="role" id="roleSelect" required>
+                <option value="" disabled selected>Select your role</option>
+                <option value="PATIENT">Patient</option>
+                <option value="DOCTOR">Doctor</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+        </label>
+        <div id="patientFields" class="role-specific">
+            <label>
+                Medical History:
+                <textarea name="medicalHistory" placeholder="Enter medical history (e.g., Diabetes, Hypertension)"></textarea>
+            </label>
+            <label>
+                Insurance Provider:
+                <input type="text" name="insuranceProvider" placeholder="Enter insurance provider" />
+            </label>
+        </div>
+        <div id="doctorFields" class="role-specific">
+            <label>
+                License Number:
+                <input type="text" name="licenseNumber" placeholder="Enter medical license number" />
+            </label>
+            <label>
+                Specialty:
+                <input type="text" name="specialty" placeholder="Enter specialty (e.g., Cardiology)" />
+            </label>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <a href="/login">Login</a>
+</div>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            const form = e.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    document.getElementById('successMessage').textContent = result.message;
+                    document.getElementById('successMessage').style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/login'; // Redirect after 3 seconds
+                    }, 1000);
+                } else {
+                    document.getElementById('errorMessage').textContent = result.message;
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+        document.getElementById('roleSelect').addEventListener('change', (e) => {
+            const patientFields = document.getElementById('patientFields');
+            const doctorFields = document.getElementById('doctorFields');
+            patientFields.style.display = e.target.value === 'PATIENT' ? 'block' : 'none';
+            doctorFields.style.display = e.target.value === 'DOCTOR' ? 'block' : 'none';
+        });
+</script>
+</body>
+</html>
