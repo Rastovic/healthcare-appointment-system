@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/healthcare?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=CONVERT_TO_NULL
+    url: jdbc:mysql://localhost:3306/healhcare_app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=CONVERT_TO_NULL
     username: root
     password: YourRootPassword
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,8 +18,9 @@ logging:
     org.springframework.security: DEBUG
     com.main.app: DEBUG
 
-  thymeleaf:
-    cache: false
+thymeleaf:
+  cache: false
+
 
 server:
   port: 8080

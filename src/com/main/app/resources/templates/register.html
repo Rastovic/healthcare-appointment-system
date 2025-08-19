@@ -207,7 +207,7 @@
                     document.getElementById('errorMessage').style.display = 'block';
                 }
             } catch (error) {
-                document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
+                document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             }
         });

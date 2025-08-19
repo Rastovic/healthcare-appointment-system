@@ -33,7 +33,7 @@ public class Person {
     @Column(name = "address_2")
     private String address2;
 
-    @Column(name = "hospital_id", nullable = false)
+    @Column(name = "hospital_id")
     private Long hospitalId;
 
     @Column(name = "medical_condition", columnDefinition = "MEDIUMTEXT")
@@ -53,7 +53,7 @@ public class Person {
 
     @Column(name = "password_expiry_date")
     @Temporal(TemporalType.DATE)
-    private Date passwordExpiryDate;
+    private LocalDate passwordExpiryDate;
 
     @Column(name = "pin", length = 10)
     private String pin;

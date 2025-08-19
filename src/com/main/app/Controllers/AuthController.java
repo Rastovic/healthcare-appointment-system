@@ -27,6 +27,7 @@ public class AuthController {
 
     @Autowired
     private SecurityConfig securityConfig;
+
     @Autowired
     private RoleService roleService;
 
@@ -46,7 +47,6 @@ public class AuthController {
                                           @RequestParam String email,
                                           @RequestParam String firstName,
                                           @RequestParam String lastName,
-                                          @RequestParam String phoneNumber,
                                           @RequestParam String role,
                                           @RequestParam LocalDate dateOfBirth) {
         Map<String, Object> response = new HashMap<>();
@@ -78,7 +78,6 @@ public class AuthController {
             person.setEmail(email);
             person.setFirstName(firstName);
             person.setLastName(lastName);
-            person.setPhone(phoneNumber);
             person.setBirthDate(dateOfBirth);
             person.setRoleId(roleEntity.getId());
 

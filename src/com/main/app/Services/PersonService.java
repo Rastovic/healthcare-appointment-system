@@ -19,7 +19,7 @@ public class PersonService {
 
 
     public Person registerUser(Person person) {
-        if (personRepository.existsByUsername(person.getUserName())) {
+        if (personRepository.existsByUserName(person.getUserName())) {
             throw new IllegalArgumentException("Username already exists");
         }
         personRepository.save(person);
@@ -27,7 +27,7 @@ public class PersonService {
     }
 
     public boolean existsByUsername(String username) {
-        return personRepository.existsByUsername(username);
+        return personRepository.existsByUserName(username);
     }
     public boolean existsByEmail(String email) {
         return personRepository.existsByEmail(email);
@@ -36,7 +36,7 @@ public class PersonService {
 
     public Person findByUsername(String username) {
 
-        return personRepository.findByUsername(username);
+        return personRepository.findByUserName(username);
 
     }
 
