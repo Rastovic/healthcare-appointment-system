@@ -102,6 +102,16 @@ public class AuthController {
 
 
 
+    @GetMapping("/admin/panel")
+    public String adminPanel() {
+        return "admin/panel";
+    }
+
+    @GetMapping("/doctor/appointments")
+    public String doctorAppointments() {
+        return "doctor/appointments";
+    }
+
 
     @GetMapping("/forbidden")
     public String forbidden() {
