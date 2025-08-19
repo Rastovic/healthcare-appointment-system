@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #6dd5fa 0%, #2980b9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .edit-profile-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h2 {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #2d3748;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3182ce;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2b6cb0;
+        }
+        #messageArea {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="edit-profile-container">
+    <h2>Edit Profile</h2>
+    <form id="editProfileForm" action="/persons/update" method="post" th:object="${person}">
+ <div id="messageArea"></div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" th:field="*{userName}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" th:field="*{email}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" th:field="*{firstName}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" th:field="*{lastName}" required/>
+        </div>
+
+        <div class="form-group">
+            <label for="dateOfBirth">Date of Birth:</label>
+            <input type="date" id="dateOfBirth" th:field="*{birthDate}"/>
+        </div>
+
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" id="phoneNumber" th:field="*{phoneNumber}"/>
+        </div>
+
+        <div class="form-group">
+            <label for="medicalHistory">Medical History:</label>
+            <textarea id="medicalHistory" th:field="*{medicalHistory}"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="insuranceProvider">Insurance Provider:</label>
+            <input type="text" id="insuranceProvider" th:field="*{insuranceProvider}"/>
+        </div>
+
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
+        const messageArea = document.getElementById('messageArea');
+        event.preventDefault();
+
+        // Clear previous messages
+        messageArea.textContent = '';
+ messageArea.className = '';
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        // Basic validation for required fields
+        if (!formData.get('userName') || !formData.get('email') || !formData.get('firstName') || !formData.get('lastName')) {
+            displayMessage('Please fill in all required fields.', 'error');
+            return;
+        }
+        // Build the PersonDto object from form data
+        const personDto = {
+            id: formData.get('id'),
+            userName: formData.get('userName'),
+            email: formData.get('email'),
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            birthDate: formData.get('birthDate'),
+            phoneNumber: formData.get('phoneNumber'),
+            medicalHistory: formData.get('medicalHistory'),
+            insuranceProvider: formData.get('insuranceProvider')
+            // Add other fields if necessary
+        };
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': formData.get('_csrf') // Include CSRF token
+                },
+                body: JSON.stringify(personDto)
+            });
+
+            if (response.ok) {
+                displayMessage('Profile updated successfully!', 'success');
+                // Optional: Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = '/profile';
+                }, 1000); // Redirect after 1 second
+            } else {
+                const errorData = await response.json();
+                displayMessage('Failed to update profile: ' + (errorData.message || response.statusText), 'error');
+            }
+        } catch (error) {
+            displayMessage('An error occurred: ' + error, 'error');
+        }
+    });
+
+    function displayMessage(message, type) {
+        const messageArea = document.getElementById('messageArea');
+        messageArea.textContent = message;
+        messageArea.className = type; // 'success' or 'error'
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

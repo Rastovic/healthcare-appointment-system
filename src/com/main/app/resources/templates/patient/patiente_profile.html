@@ -191,12 +191,14 @@
     <div>
         <div class="profile-info">
             <div>Username: <span th:text="${user.username}"></span></div>
-            <div>Full Name: <span th:text="${user.fullName}"></span></div>
+            <div>First Name: <span th:text="${user.firstName ?: 'Not provided'}"></span></div>
+            <div>Last Name: <span th:text="${user.lastName ?: 'Not provided'}"></span></div>
             <div>Email: <span th:text="${user.email}"></span></div>
-            <div>Date of Birth: <span th:text="${user.dateOfBirth}"></span></div>
-            <div>Phone Number: <span th:text="${user.phoneNumber}"></span></div>
+            <div>Date of Birth: <span th:text="${user.birthDate ?: 'Not provided'}"></span></div>
+            <div>Phone Number: <span th:text="${user.phoneNumber ?: 'Not provided'}"></span></div>
+            <div>Address: <span th:text="${user.address ?: 'Not provided'}"></span></div>
             <div>Medical History: <span th:text="${user.medicalHistory ?: 'None'}"></span></div>
-            <div>Insurance Provider: <span th:text="${user.insuranceProvider ?: 'None'}"></span></div>
+            <div>Insurance Provider: <span th:text="${user.insuranceProvider ?: 'Not provided'}"></span></div>
         </div>
         <div id="patientSection" class="role-specific">
             <a th:href="@{'/users/edit/' + ${user.id}}" class="button">Edit Profile</a>
