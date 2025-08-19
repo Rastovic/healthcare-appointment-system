@@ -10,6 +10,9 @@ import com.main.app.Services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity; // Keep ResponseEntity import if you need it elsewhere or for other methods
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
@@ -117,12 +121,17 @@ public class AuthController {
                 return new ModelAndView("redirect:/login?error=invalidCredentials");
             }
 
-            // Save user in session (so you can use it later)
-            session.setAttribute("user", person); // Keep this if you need the full person object in session
-
             // Retrieve role name
             // Lookup role from DB
             Role roleEntity = roleService.findByRoleId(person.getRoleId());
+
+            // Create Spring Security Authentication object
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            if (roleEntity != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getRoleName().toUpperCase()));
+            }
+            Authentication authentication = new UsernamePasswordAuthenticationToken(person.getUserName(), null, authorities); // Use username as principal, password is not needed after authentication
+            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authentication);
 
             if (roleEntity == null) {
                 return new ModelAndView("redirect:/forbidden");
@@ -149,7 +158,6 @@ public class AuthController {
     public ModelAndView profile(HttpSession session) {
         ModelAndView mav = new ModelAndView("profile");
         Person user = (Person) session.getAttribute("user");
-        if (user == null) {
             return new ModelAndView("redirect:/login");
         }
         mav.addObject("user", user);
