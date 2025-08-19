@@ -21,10 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Bean
 
- @Autowired
- private PersonService personService;
  @Autowired
  private RoleService roleService;
  @Bean
@@ -55,7 +52,7 @@ public class SecurityConfig {
     }
 
  @Bean
- public UserDetailsService userDetailsService() {
+ public UserDetailsService userDetailsService(PersonService personService) {
  return username -> {
  Person person = personService.findByUsername(username);
  if (person == null) {
