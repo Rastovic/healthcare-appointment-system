@@ -112,6 +112,11 @@ public class AuthController {
         return "doctor/appointments";
     }
 
+    @GetMapping("/patient/patient_dashboard")
+    public String patientDashboard() {
+        return "patient/patient_dashboard";
+    }
+
 
     @GetMapping("/forbidden")
     public String forbidden() {
