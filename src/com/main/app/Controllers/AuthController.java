@@ -101,14 +101,13 @@ public class AuthController {
 
 
     @PostMapping("/doLogin")
-    public ResponseEntity<?> loginUser(@RequestParam String username,
+    public ModelAndView loginUser(@RequestParam String username,
                                        @RequestParam String password) {
-        Map<String, Object> response = new HashMap<>();
+        ModelAndView mav = new ModelAndView();
 
         try {
             // Find user by username
             Person person = personService.findByUsername(username);
-
             if (person == null) {
                 response.put("status", "error");
                 response.put("message", "User not found");
@@ -122,20 +121,26 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // Success
-            response.put("status", "success");
-            response.put("message", "Login successful");
-            response.put("username", person.getUserName());
-            response.put("email", person.getEmail());
-            response.put("role", person.getRoleId());
-
-            return ResponseEntity.ok(response);
+            // Redirect based on role
+            if (person.getRoleId() == 1) { // Admin
+                mav.setViewName("redirect:/admin/panel");
+            } else if (person.getRoleId() == 2) { // Doctor
+                mav.setViewName("redirect:/doctor/appointments");
+            } else if (person.getRoleId() == 3) { // Patient
+                mav.setViewName("redirect:/patient/appointment_history");
+            } else {
+                // Default redirect or error for unknown role
+                mav.setViewName("redirect:/login?error=unknownRole");
+            }
+            return mav;
 
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "Login failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
+        return mav;
     }
 
 
