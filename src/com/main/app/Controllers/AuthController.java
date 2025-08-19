@@ -101,13 +101,13 @@ public class AuthController {
 
 
     @PostMapping("/doLogin")
-    public ModelAndView loginUser(@RequestParam String username,
-                                       @RequestParam String password) {
+    public ResponseEntity<?> loginUser(@RequestParam String username,
+ @RequestParam String password) {
         ModelAndView mav = new ModelAndView();
+ Map<String, Object> response = new HashMap<>();
 
         try {
             // Find user by username
-            Person person = personService.findByUsername(username);
             if (person == null) {
                 response.put("status", "error");
                 response.put("message", "User not found");
@@ -121,26 +121,25 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
+ // Success
+ response.put("status", "success");
+ response.put("message", "Login successful");
+
             // Redirect based on role
             if (person.getRoleId() == 1) { // Admin
-                mav.setViewName("redirect:/admin/panel");
+ return ResponseEntity.ok(response).header("Location", "/admin/panel").build();
             } else if (person.getRoleId() == 2) { // Doctor
-                mav.setViewName("redirect:/doctor/appointments");
+ return ResponseEntity.ok(response).header("Location", "/doctor/appointments").build();
             } else if (person.getRoleId() == 3) { // Patient
-                mav.setViewName("redirect:/patient/appointment_history");
+ return ResponseEntity.ok(response).header("Location", "/patient/appointment_history").build();
             } else {
                 // Default redirect or error for unknown role
-                mav.setViewName("redirect:/login?error=unknownRole");
+ return ResponseEntity.ok(response).header("Location", "/login?error=unknownRole").build();
             }
-            return mav;
-
         } catch (Exception e) {
-            response.put("status", "error");
             response.put("message", "Login failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
-        return mav;
     }
 
 
