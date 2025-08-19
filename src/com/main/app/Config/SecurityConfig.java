@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,7 +36,7 @@ public class SecurityConfig {
                 )
                 .formLogin(formLogin -> formLogin
  .loginPage("/login").loginProcessingUrl("/doLogin").defaultSuccessUrl("/default-dashboard-after-login", true).failureUrl("/login?error=true").permitAll()
-                        .anyRequest().authenticated()
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

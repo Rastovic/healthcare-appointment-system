@@ -1,7 +1,6 @@
 package com.main.app.Controllers;
 
 
-import jakarta.servlet.http.HttpSession;
 import com.main.app.Config.SecurityConfig;
 import com.main.app.Model.Person;
 import com.main.app.Model.Role;
@@ -9,21 +8,14 @@ import com.main.app.Services.PersonService;
 import com.main.app.Services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity; // Keep ResponseEntity import if you need it elsewhere or for other methods
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
@@ -109,15 +101,7 @@ public class AuthController {
 
 
 
-    @GetMapping("/profile")
-    public ModelAndView profile(HttpSession session) {
-        ModelAndView mav = new ModelAndView("profile");
-        Person user = (Person) session.getAttribute("user");
-            return new ModelAndView("redirect:/login");
-        }
-        mav.addObject("user", user);
-        return mav;
-    }
+
 
     @GetMapping("/forbidden")
     public String forbidden() {
