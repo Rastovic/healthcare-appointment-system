@@ -9,11 +9,8 @@ import com.main.app.Services.PersonService;
 import com.main.app.Services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.ResponseEntity; // Keep ResponseEntity import if you need it elsewhere or for other methods
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -105,6 +102,7 @@ public class AuthController {
 
 
 
+
     @PostMapping("/doLogin")
     public ModelAndView loginUser(@RequestParam String username,
                                   @RequestParam String password,
@@ -120,8 +118,9 @@ public class AuthController {
             }
 
             // Save user in session (so you can use it later)
-            session.setAttribute("user", person);
+            session.setAttribute("user", person); // Keep this if you need the full person object in session
 
+            // Retrieve role name
             // Lookup role from DB
             Role roleEntity = roleService.findByRoleId(person.getRoleId());
 
@@ -129,12 +128,15 @@ public class AuthController {
                 return new ModelAndView("redirect:/forbidden");
             }
 
+            // Store role name in session for easier access and potential Spring Security use
+            session.setAttribute("userRole", roleEntity.getRoleName());
+
             // Redirect based on role
             return switch (roleEntity.getRoleName().toUpperCase()) {
                 case "ADMIN" -> new ModelAndView("redirect:/admin/panel");
                 case "DOCTOR" -> new ModelAndView("redirect:/doctor/appointments");
                 case "PATIENT" -> new ModelAndView("redirect:/patient/patient_dashboard");
-                default -> new ModelAndView("redirect:/forbidden");
+                default -> new ModelAndView("redirect:/forbidden"); // Or a more generic authenticated user page
             };
 
         } catch (Exception e) {
