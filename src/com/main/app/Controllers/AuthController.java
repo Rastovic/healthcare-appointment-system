@@ -107,51 +107,6 @@ public class AuthController {
 
 
 
-    @PostMapping("/doLogin")
-    public ModelAndView loginUser(@RequestParam String username,
-                                  @RequestParam String password,
-                                  HttpSession session) {
-        try {
-            Person person = personService.findByUsername(username);
-            if (person == null) {
-                return new ModelAndView("redirect:/login?error=userNotFound");
-            }
-
-            if (!securityConfig.passwordEncoder().matches(password, person.getPasswordHash())) {
-                return new ModelAndView("redirect:/login?error=invalidCredentials");
-            }
-
-            // Retrieve role name
-            // Lookup role from DB
-            Role roleEntity = roleService.findByRoleId(person.getRoleId());
-
-            // Create Spring Security Authentication object
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (roleEntity != null) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getRoleName().toUpperCase()));
-            }
-            Authentication authentication = new UsernamePasswordAuthenticationToken(person.getUserName(), null, authorities); // Use username as principal, password is not needed after authentication
-            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            if (roleEntity == null) {
-                return new ModelAndView("redirect:/forbidden");
-            }
-
-            // Store role name in session for easier access and potential Spring Security use
-            session.setAttribute("userRole", roleEntity.getRoleName());
-
-            // Redirect based on role
-            return switch (roleEntity.getRoleName().toUpperCase()) {
-                case "ADMIN" -> new ModelAndView("redirect:/admin/panel");
-                case "DOCTOR" -> new ModelAndView("redirect:/doctor/appointments");
-                case "PATIENT" -> new ModelAndView("redirect:/patient/patient_dashboard");
-                default -> new ModelAndView("redirect:/forbidden"); // Or a more generic authenticated user page
-            };
-
-        } catch (Exception e) {
-            return new ModelAndView("redirect:/login?error=serverError");
-        }
-    }
 
 
     @GetMapping("/profile")
