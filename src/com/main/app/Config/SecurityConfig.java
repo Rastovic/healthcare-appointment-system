@@ -17,11 +17,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/register", "/doLogin", "/persons/update"))
                 .authorizeHttpRequests(auth -> auth
- .requestMatchers("/register", "/login", "/doLogin", "/css/**").permitAll()
- .requestMatchers("/admin/panel").hasRole("ADMIN")
- .requestMatchers("/doctor/appointments").hasRole("DOCTOR")
- .requestMatchers("/patient/patient_dashboard").hasRole("PATIENT")
- .requestMatchers("/profile").authenticated()
+                        .requestMatchers("/register", "/login", "/css/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/patient/**").hasRole("PATIENT")
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
