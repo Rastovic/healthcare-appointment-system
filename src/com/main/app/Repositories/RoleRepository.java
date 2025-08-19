@@ -11,4 +11,7 @@ public interface RoleRepository extends JpaRepository<Role,Long> {
 
     Optional<Role> findByRoleName(String roleName);
 
+    Optional<Role> findById(Long id);   // Spring Data already understands "id"
+
+
 }

@@ -101,44 +101,39 @@ public class AuthController {
 
 
     @PostMapping("/doLogin")
-    public ResponseEntity<?> loginUser(@RequestParam String username,
- @RequestParam String password) {
-        ModelAndView mav = new ModelAndView();
- Map<String, Object> response = new HashMap<>();
-
+    public ModelAndView loginUser(@RequestParam String username,
+                                  @RequestParam String password,
+                                  HttpSession session) {
         try {
-            // Find user by username
+            Person person = personService.findByUsername(username);
             if (person == null) {
-                response.put("status", "error");
-                response.put("message", "User not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                return new ModelAndView("redirect:/login?error=userNotFound");
             }
 
-            // Validate password
             if (!securityConfig.passwordEncoder().matches(password, person.getPasswordHash())) {
-                response.put("status", "error");
-                response.put("message", "Invalid credentials");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                return new ModelAndView("redirect:/login?error=invalidCredentials");
             }
 
- // Success
- response.put("status", "success");
- response.put("message", "Login successful");
+            // Save user in session (so you can use it later)
+            session.setAttribute("user", person);
+
+            // Lookup role from DB
+            Role roleEntity = roleService.findByRoleId(person.getRoleId());
+
+            if (roleEntity == null) {
+                return new ModelAndView("redirect:/forbidden");
+            }
 
             // Redirect based on role
-            if (person.getRoleId() == 1) { // Admin
- return ResponseEntity.ok(response).header("Location", "/admin/panel").build();
-            } else if (person.getRoleId() == 2) { // Doctor
- return ResponseEntity.ok(response).header("Location", "/doctor/appointments").build();
-            } else if (person.getRoleId() == 3) { // Patient
- return ResponseEntity.ok(response).header("Location", "/patient/appointment_history").build();
-            } else {
-                // Default redirect or error for unknown role
- return ResponseEntity.ok(response).header("Location", "/login?error=unknownRole").build();
-            }
+            return switch (roleEntity.getRoleName().toUpperCase()) {
+                case "ADMIN" -> new ModelAndView("redirect:/admin/panel");
+                case "DOCTOR" -> new ModelAndView("redirect:/doctor/appointments");
+                case "PATIENT" -> new ModelAndView("redirect:/patient/appointment_history");
+                default -> new ModelAndView("redirect:/forbidden");
+            };
+
         } catch (Exception e) {
-            response.put("message", "Login failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return new ModelAndView("redirect:/login?error=serverError");
         }
     }
 
@@ -150,14 +145,12 @@ public class AuthController {
         if (user == null) {
             return new ModelAndView("redirect:/login");
         }
-
-        // Convert User entity to UserDto before adding to model
         mav.addObject("user", user);
-
-
         return mav;
     }
 
-
-
+    @GetMapping("/forbidden")
+    public String forbidden() {
+        return "forbidden"; // point this to a Thymeleaf/HTML template
+    }
 }

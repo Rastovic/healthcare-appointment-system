@@ -20,4 +20,9 @@ public class RoleService {
         Optional<Role> role = roleRepository.findByRoleName(roleName);
         return role.orElse(null);
     }
+
+    public Role findByRoleId(Long roleId) {
+        Optional<Role> role = roleRepository.findById(roleId);
+        return role.orElse(null);
+    }
 }
