@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
- .loginPage("/login").loginProcessingUrl("/doLogin").defaultSuccessUrl("/default-dashboard-after-login", true).failureUrl("/login?error=true").permitAll()
+.loginPage("/login").loginProcessingUrl("/doLogin").failureUrl("/login?error=true").successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -69,6 +69,11 @@ public class SecurityConfig {
  @Bean
  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
  return authenticationConfiguration.getAuthenticationManager();
+ }
+
+ @Bean
+ public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+ return new CustomAuthenticationSuccessHandler();
  }
 }
 
