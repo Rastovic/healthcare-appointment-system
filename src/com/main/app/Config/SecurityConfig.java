@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -74,6 +76,11 @@ public class SecurityConfig {
  @Bean
  public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
  return new CustomAuthenticationSuccessHandler();
+ }
+
+ @Bean
+ public RedirectStrategy redirectStrategy() {
+ return new DefaultRedirectStrategy();
  }
 }
 
