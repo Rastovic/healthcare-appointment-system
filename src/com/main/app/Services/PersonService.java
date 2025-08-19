@@ -40,7 +40,12 @@ public class PersonService {
 
     }
 
-   public List<Person> findAllUsers() {
+    public Person findPersonById(Long personId) {
+        return personRepository.findById(personId).orElse(null);
+    }
+
+
+    public List<Person> findAllUsers() {
         return personRepository.findAll();
     }
 

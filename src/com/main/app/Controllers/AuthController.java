@@ -10,6 +10,10 @@ import com.main.app.Services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -129,7 +133,7 @@ public class AuthController {
             return switch (roleEntity.getRoleName().toUpperCase()) {
                 case "ADMIN" -> new ModelAndView("redirect:/admin/panel");
                 case "DOCTOR" -> new ModelAndView("redirect:/doctor/appointments");
-                case "PATIENT" -> new ModelAndView("redirect:/patient/appointment_history");
+                case "PATIENT" -> new ModelAndView("redirect:/patient/patient_dashboard");
                 default -> new ModelAndView("redirect:/forbidden");
             };
 

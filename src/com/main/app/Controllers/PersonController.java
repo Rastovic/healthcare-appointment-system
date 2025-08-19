@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api") // You can change the base path if needed
 public class PersonController {
@@ -21,30 +19,23 @@ public class PersonController {
     public ResponseEntity<?> updatePerson(@RequestBody PersonDto personDto) {
         try {
             // Retrieve the existing Person from the database
-            Optional<Person> existingPersonOptional = personService.findById(personDto.getId());
+             Person person = personService.findPersonById(personDto.getId());
 
-            if (!existingPersonOptional.isPresent()) {
+            if (person == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found with ID: " + personDto.getId());
             }
 
-            Person existingPerson = existingPersonOptional.get();
 
-            // Update the existing Person object with data from the PersonDto
-            existingPerson.setUserName(personDto.getUserName());
-            existingPerson.setEmail(personDto.getEmail());
-            existingPerson.setFirstName(personDto.getFirstName());
-            existingPerson.setLastName(personDto.getLastName());
-            existingPerson.setBirthDate(personDto.getBirthDate());
-            existingPerson.setPhoneNumber(personDto.getPhoneNumber());
-            existingPerson.setMedicalHistory(personDto.getMedicalHistory());
-            existingPerson.setInsuranceProvider(personDto.getInsuranceProvider());
-            // Assuming password update is handled separately for security reasons,
-            // or you would add password related fields to PersonDto and handle them here.
-            // For simplicity, we are not updating password here.
-
+            person.setUserName(personDto.getUsername());
+            person.setEmail(personDto.getEmail());
+            person.setFirstName(personDto.getFirstName());
+            person.setLastName(personDto.getLastName());
+            person.setBirthDate(personDto.getDateOfBirth());
+            person.setPhone(personDto.getPhoneNumber());
+      //dodaj ostala polja
 
             // Save the updated Person object
-            Person updatedPerson = personService.save(existingPerson);
+            Person updatedPerson = personService.save(person);
 
             return ResponseEntity.ok(updatedPerson); // Or a success message/DTO
 
