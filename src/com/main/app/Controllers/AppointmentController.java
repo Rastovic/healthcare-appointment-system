@@ -55,11 +55,8 @@ public class AppointmentController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
-        boolean deleted = appointmentService.deleteAppointment(id);
-        if (deleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       appointmentService.deleteAppointment(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/doctor/{doctorId}")
