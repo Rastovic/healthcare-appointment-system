@@ -23,7 +23,9 @@ public class AppointmentDto {
     private LocalDateTime updatedAt;
     private String status;
     private String location;
-    private Long personId; // Represents the patient
+    @JsonSerialize
+    public Long personId;
+    @JsonSerialize
     private Long doctorId; // Represents the doctor
     private String testResults;
     private String doctorNotes;

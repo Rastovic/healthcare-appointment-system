@@ -70,12 +70,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             if (appointmentDto.getPersonId() != null) {
                 Person patient = personRepository.findById(appointmentDto.getPersonId())
                         .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + appointmentDto.getPersonId()));
-                appointment.setPatient(patient);
+                appointment.setPersonId(patient.getId());
             }
             if (appointmentDto.getDoctorId() != null) {
                 Person doctor = personRepository.findById(appointmentDto.getDoctorId())
                         .orElseThrow(() -> new EntityNotFoundException("Doctor not found with id: " + appointmentDto.getDoctorId()));
-                appointment.setDoctor(doctor);
+                appointment.setDoctorId(doctor.getDoctorId());
             }
 
             appointment.setUpdatedAt(LocalDateTime.now());
@@ -102,15 +102,12 @@ appointmentDto.setStartTime(appointment.getStartTime());
         appointmentDto.setLocation(appointment.getLocation());
         appointmentDto.setCreatedAt(appointment.getCreatedAt());
         appointmentDto.setUpdatedAt(appointment.getUpdatedAt());
-        if (appointment.getPatient() != null) {
-            appointmentDto.setPersonId(appointment.getPatient().getId());
+        if (appointment.getPersonId() != null) {
+            appointmentDto.setPersonId(appointment.getPersonId());
         }
- if (appointment.getPatient() != null) {
- Person patient = appointment.getPatient();
- appointmentDto.setPatientName(patient.getFirstName() + " " + patient.getLastName());
- }
-        if (appointment.getDoctor() != null) {
-            appointmentDto.setDoctorId(appointment.getDoctor().getId());
+
+        if (appointment.getDoctorId() != null) {
+            appointmentDto.setDoctorId(appointment.getDoctorId());
         }
         appointmentDto.setTestResults(appointment.getTestResults());
         appointmentDto.setDoctorNotes(appointment.getDoctorNotes());
@@ -134,12 +131,12 @@ appointmentDto.setStartTime(appointment.getStartTime());
         if (appointmentDto.getPersonId() != null) {
             Person patient = personRepository.findById(appointmentDto.getPersonId())
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + appointmentDto.getPersonId()));
-            appointment.setPatient(patient);
+            appointment.setPersonId(patient.getId());
         }
         if (appointmentDto.getDoctorId() != null) {
             Person doctor = personRepository.findById(appointmentDto.getDoctorId())
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found with id: " + appointmentDto.getDoctorId()));
-            appointment.setDoctor(doctor);
+            appointment.setDoctorId(doctor.getDoctorId());
         }
 
         return appointment;

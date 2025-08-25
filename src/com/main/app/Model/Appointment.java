@@ -1,10 +1,18 @@
 package com.main.app.Model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "appointments")
+@Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "appointment")
 public class Appointment {
 
     @Id
@@ -35,13 +43,11 @@ public class Appointment {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "person_id", nullable = false)
-    private Person patient;
+    @Column(name = "person_id", nullable = false)
+    private Long personId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Person doctor;
+    @Column(name = "doctor_id", nullable = false)
+    private Long doctorId;
 
     @Column(name = "test_results")
     private String testResults;
@@ -54,115 +60,5 @@ public class Appointment {
 
     // Getters and Setters
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Person getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Person patient) {
-        this.patient = patient;
-    }
-
-    public Person getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Person doctor) {
-        this.doctor = doctor;
-    }
-
-    public String getTestResults() {
-        return testResults;
-    }
-
-    public void setTestResults(String testResults) {
-        this.testResults = testResults;
-    }
-
-    public String getDoctorNotes() {
-        return doctorNotes;
-    }
-
-    public void setDoctorNotes(String doctorNotes) {
-        this.doctorNotes = doctorNotes;
-    }
-
-    public String getPrescription() {
-        return prescription;
-    }
-
-    public void setPrescription(String prescription) {
-        this.prescription = prescription;
-    }
 }

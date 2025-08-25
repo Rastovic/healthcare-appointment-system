@@ -7,57 +7,62 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header class="futuristic-header">
-        <div class="container">
-            <h1>QuantumCare</h1>
-            <nav>
-                <ul>
-                    <li><a href="/doctor/panel">Dashboard</a></li>
-                    <li><a href="/doctor/appointments">Appointments</a></li>
-                    <li><a href="/logout">Logout</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+<header class="futuristic-header">
+    <div class="container">
+        <h1>Health Care</h1>
+        <nav>
+            <ul>
+                <li><a href="/doctor/panel">Dashboard</a></li>
+                <li><a href="/doctor/appointments">Appointments</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
-    <main class="container futuristic-container">
-        <h2>Your Appointments</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Patient Name</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Test Results</th>
-                        <th>Doctor Notes</th>
-                        <th>Prescription</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="appointment : ${appointments}">
-                        <td th:text="${appointment.patientName}">Patient Name</td>
- <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')}">Date</td>
- <td th:text="${#temporals.format(appointment.startTime, 'HH:mm')}">Time</td>
-                        <td th:text="${appointment.status}">Status</td>
- <td th:text="${appointment.title}">Title</td>
- <td th:text="${appointment.description}">Description</td>
- <td th:text="${appointment.location}">Location</td>
- <td th:text="${appointment.testResults}">Test Results</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+<main class="container futuristic-container">
+    <h2>Your Appointments</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Test Results</th>
+                <th>Doctor Notes</th>
+                <th>Prescription</th>
+                <th>Person ID</th>
+                <th>Doctor ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appointment : ${appointments}">
+                <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')} ?: ''"></td>
+                <td th:text="${#temporals.format(appointment.startTime, 'HH:mm')} ?: ''"></td>
+                <td th:text="${appointment.status} ?: ''"></td>
+                <td th:text="${appointment.title} ?: ''"></td>
+                <td th:text="${appointment.description} ?: ''"></td>
+                <td th:text="${appointment.location} ?: ''"></td>
+                <td th:text="${appointment.testResults} ?: ''"></td>
+                <td th:text="${appointment.doctorNotes} ?: ''"></td>
+                <td th:text="${appointment.prescription} ?: ''"></td>
+                <td th:text="${appointment.personId} ?: ''"></td>
+                <td th:text="${appointment.doctorId} ?: ''"></td>
+            </tr>
+            </tbody>
 
-    <footer class="futuristic-footer">
-        <div class="container">
-            <p>&copy; 2023 QuantumCare</p>
-        </div>
-    </footer>
+        </table>
+    </div>
+</main>
+
+<footer class="futuristic-footer">
+    <div class="container">
+        <p>luf <3</p>
+    </div>
+</footer>
 </body>
 </html>
