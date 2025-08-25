@@ -1,6 +1,7 @@
 package com.main.app.Services;
 
 import com.main.app.Dto.AppointmentDto;
+import com.main.app.Model.Appointment;
 
 import java.util.List;
 
@@ -12,4 +13,6 @@ public interface AppointmentService {
     AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto);
     void deleteAppointment(Long id);
     List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId);
+
+    AppointmentDto convertEntityToDto(Appointment appointment);
 }
