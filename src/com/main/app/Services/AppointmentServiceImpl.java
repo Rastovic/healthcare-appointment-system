@@ -105,6 +105,10 @@ appointmentDto.setStartTime(appointment.getStartTime());
         if (appointment.getPatient() != null) {
             appointmentDto.setPersonId(appointment.getPatient().getId());
         }
+ if (appointment.getPatient() != null) {
+ Person patient = appointment.getPatient();
+ appointmentDto.setPatientName(patient.getFirstName() + " " + patient.getLastName());
+ }
         if (appointment.getDoctor() != null) {
             appointmentDto.setDoctorId(appointment.getDoctor().getId());
         }

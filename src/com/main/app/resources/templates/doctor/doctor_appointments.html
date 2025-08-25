@@ -40,10 +40,14 @@
                 </thead>
                 <tbody>
                     <tr th:each="appointment : ${appointments}">
-                        <td th:text="${appointment.patient.name}">Patient Name</td>
-                        <td th:text="${appointment.date}">Date</td>
-                        <td th:text="${appointment.time}">Time</td>
+                        <td th:text="${appointment.patientName}">Patient Name</td>
+ <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')}">Date</td>
+ <td th:text="${#temporals.format(appointment.startTime, 'HH:mm')}">Time</td>
                         <td th:text="${appointment.status}">Status</td>
+ <td th:text="${appointment.title}">Title</td>
+ <td th:text="${appointment.description}">Description</td>
+ <td th:text="${appointment.location}">Location</td>
+ <td th:text="${appointment.testResults}">Test Results</td>
                     </tr>
                 </tbody>
             </table>
