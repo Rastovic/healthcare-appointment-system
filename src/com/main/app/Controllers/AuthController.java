@@ -116,10 +116,10 @@ public class AuthController {
 
     @GetMapping("/doctor/appointments")
     public String doctorAppointments(Model model) {
-        Person doctor = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long doctorId = doctor.getId();
+        String doctorUsername =  SecurityContextHolder.getContext().getAuthentication().getName();
+        Person doctor = personService.findByUsername(doctorUsername);
 
-        List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctorId(doctorId);
+        List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctorId(doctor.getDoctorId());
         model.addAttribute("appointments", appointments);
         return "doctor/appointments";
     }
