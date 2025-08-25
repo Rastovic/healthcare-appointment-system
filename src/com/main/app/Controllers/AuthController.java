@@ -2,11 +2,14 @@ package com.main.app.Controllers;
 
 
 import com.main.app.Config.SecurityConfig;
+import com.main.app.Dto.AppointmentDto;
 import com.main.app.Model.Person;
 import com.main.app.Model.Role;
+import com.main.app.Services.AppointmentService;
 import com.main.app.Services.PersonService;
 import com.main.app.Services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import org.springframework.ui.Model;
 import java.util.*;
 
 @Controller
@@ -28,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @GetMapping("/login")
     public String login() {
@@ -108,7 +115,12 @@ public class AuthController {
     }
 
     @GetMapping("/doctor/appointments")
-    public String doctorAppointments() {
+    public String doctorAppointments(Model model) {
+        Person doctor = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long doctorId = doctor.getId();
+
+        List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctorId(doctorId);
+        model.addAttribute("appointments", appointments);
         return "doctor/appointments";
     }
 
