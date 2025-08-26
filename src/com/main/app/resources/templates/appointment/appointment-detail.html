@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Details</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="futuristic-header">
+    <div class="container">
+        <h1>Healthcare</h1>
+        <nav>
+            <ul>
+                <li><a href="/doctor/panel">Dashboard</a></li>
+                <li><a href="/doctor/appointments">Appointments</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="container futuristic-container">
+    <h2>Appointment Details</h2>
+    <div class="details-container">
+        <table>
+            <tbody>
+            <tr>
+                <th>Title</th>
+                <td th:text="${appointment.title} ?: ''">Title</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td th:text="${appointment.description} ?: ''">Description</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')} ?: ''">Date</td>
+            </tr>
+            <tr>
+                <th>Time</th>
+                <td th:text="${#temporals.format(appointment.startTime, 'HH:mm')} ?: ''">Time</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td th:text="${appointment.status} ?: ''">Status</td>
+            </tr>
+            <tr>
+                <th>Location</th>
+                <td th:text="${appointment.location} ?: ''">Location</td>
+            </tr>
+            <tr>
+                <th>Person ID</th>
+                <td th:text="${appointment.personId} ?: ''">Person ID</td>
+            </tr>
+            <tr>
+                <th>Doctor ID</th>
+                <td th:text="${appointment.doctorId} ?: ''">Doctor ID</td>
+            </tr>
+            <tr>
+                <th>Test Results</th>
+                <td th:text="${appointment.testResults} ?: ''">Test Results</td>
+            </tr>
+            <tr>
+                <th>Doctor Notes</th>
+                <td th:text="${appointment.doctorNotes} ?: ''">Doctor Notes</td>
+            </tr>
+            <tr>
+                <th>Prescription</th>
+                <td th:text="${appointment.prescription} ?: ''">Prescription</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <br>
+    <div class="back-button">
+        <a th:href="@{/appointments}">← Back to Appointments</a>
+    </div>
+
+</main>
+
+<footer class="futuristic-footer">
+    <div class="container">
+        <p>luf</p>
+    </div>
+</footer>
+</body>
+</html>

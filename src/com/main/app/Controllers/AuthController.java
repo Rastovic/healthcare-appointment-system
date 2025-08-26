@@ -120,6 +120,7 @@ public class AuthController {
         Person doctor = personService.findByUsername(userName);
         List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctorId(doctor.getId());
         model.addAttribute("appointments", appointments);
+        model.addAttribute("person", doctor);
         return "doctor/doctor_appointments";
     }
     @GetMapping("/patient/patient_dashboard")

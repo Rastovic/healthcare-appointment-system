@@ -17,8 +17,15 @@
                 <li><a href="/logout">Logout</a></li>
             </ul>
         </nav>
+        <!-- Profile icon -->
+        <div class="profile-icon">
+            <a th:href="@{/profile/{id}(id=${person.id})}">
+                <img src="/images/profile-icon.png" alt="Profile" />
+            </a>
+        </div>
     </div>
 </header>
+
 
 <main class="container futuristic-container">
     <h2>Your Appointments</h2>
@@ -37,8 +44,10 @@
                 <th>Prescription</th>
                 <th>Person ID</th>
                 <th>Doctor ID</th>
+                <th>Action</th> <!-- New column -->
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="appointment : ${appointments}">
                 <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')} ?: ''"></td>
@@ -52,8 +61,12 @@
                 <td th:text="${appointment.prescription} ?: ''"></td>
                 <td th:text="${appointment.personId} ?: ''"></td>
                 <td th:text="${appointment.doctorId} ?: ''"></td>
+                <td>
+                    <a th:href="@{/appointments/{id}(id=${appointment.id})}">View</a>
+                </td>
             </tr>
             </tbody>
+
 
         </table>
     </div>

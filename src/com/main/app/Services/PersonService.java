@@ -1,5 +1,6 @@
 package com.main.app.Services;
 
+import com.main.app.Dto.PersonDto;
 import com.main.app.Model.Person;
 import com.main.app.Repositories.PersonRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,4 +59,18 @@ public class PersonService {
     public Person save(Person person) {
         return personRepository.save(person);
     }
+
+    public Person fromDto(PersonDto dto) {
+        Person person = new Person();
+        person.setId(dto.getId());
+        person.setUserName(dto.getUsername());
+        person.setEmail(dto.getEmail());
+        person.setFirstName(dto.getFirstName());
+        person.setLastName(dto.getLastName());
+        person.setBirthDate(dto.getDateOfBirth());
+        person.setPhone(dto.getPhoneNumber());
+        // add other fields
+        return person;
+    }
+
 }
