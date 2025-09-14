@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Details</title>
+    <style>
+        html, body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1e3a8a 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+        body::-webkit-scrollbar { display: none; }
+
+        header.futuristic-header { background-color: #1e1e2f; padding: 15px 0; color: #fff; }
+        header .header-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 40px; box-sizing: border-box; }
+        header h1 { color: #00d4ff; margin: 0; flex-grow: 1; }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .header-right nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
+        .header-right nav ul li a { color: #fff; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .header-right nav ul li a:hover { color: #00d4ff; }
+        .profile-icon img { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+        main.container { margin: 40px auto; flex: 1; color: #fff; max-width: 900px; }
+        h2 { color: #00d4ff; text-align: center; margin-bottom: 20px; }
+
+        .details-container table { width: 100%; border-collapse: collapse; }
+        .details-container th, .details-container td { padding: 10px; text-align: left; border-bottom: 1px solid #444; }
+        .details-container th { color: #00d4ff; font-weight: 600; }
+        .details-container td { color: #ccc; }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #00d4ff;
+            color: #1e1e2f;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+        .back-button:hover { background-color: #00bcd4; transform: translateY(-2px); }
+        .back-container { text-align: center; margin-top: 20px; }
+
+        footer.futuristic-footer { background-color: #1e1e2f; padding: 15px 0; color: #fff; text-align: center; }
+        footer .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        @media (max-width: 600px) {
+            .details-container { padding: 15px; }
+            .details-container th, .details-container td { font-size: 14px; }
+            .header-inner { padding: 0 20px; }
+            .header-right { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+<header class="futuristic-header">
+    <div class="header-inner">
+        <h1>Secure Health Care Online</h1>
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="/appointments/appointments.html">Appointments</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="profile-icon">
+                <a href="/profile.html">
+                    <img src="/images/profile-icon.png" alt="Profile">
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container futuristic-container">
+    <h2>Appointment Details</h2>
+    <div class="details-container">
+        <table>
+            <tbody>
+            <tr><th>Title</th><td id="title"></td></tr>
+            <tr><th>Description</th><td id="description"></td></tr>
+            <tr><th>Date</th><td id="date"></td></tr>
+            <tr><th>Time</th><td id="time"></td></tr>
+            <tr><th>Status</th><td id="status"></td></tr>
+            <tr><th>Location</th><td id="location"></td></tr>
+            <tr><th>Person ID</th><td id="personId"></td></tr>
+            <tr><th>Doctor ID</th><td id="doctorId"></td></tr>
+            <tr><th>Test Results</th><td id="testResults"></td></tr>
+            <tr><th>Doctor Notes</th><td id="doctorNotes"></td></tr>
+            <tr><th>Prescription</th><td id="prescription"></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="back-container">
+        <a href="/appointments/appointments.html" class="back-button">← Back to Appointments</a>
+    </div>
+</main>
+
+<footer class="futuristic-footer">
+    <div class="container">
+        <p>&copy; 2025 Health Care System</p>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get appointmentId from query string ?id=123
+        const params = new URLSearchParams(window.location.search);
+        const appointmentId = params.get('id');
+
+        if (!appointmentId) {
+            alert('No appointment ID provided');
+            return;
+        }
+
+        fetch(`/api/appointments/${appointmentId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch appointment');
+                return res.json();
+            })
+            .then(appointment => {
+                document.getElementById('title').textContent = appointment.title || '';
+                document.getElementById('description').textContent = appointment.description || '';
+                if(appointment.startTime){
+                    const start = new Date(appointment.startTime);
+                    document.getElementById('date').textContent = start.toLocaleDateString();
+                    document.getElementById('time').textContent = start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+                document.getElementById('status').textContent = appointment.status || '';
+                document.getElementById('location').textContent = appointment.location || '';
+                document.getElementById('personId').textContent = appointment.personId || '';
+                document.getElementById('doctorId').textContent = appointment.doctorId || '';
+                document.getElementById('testResults').textContent = appointment.testResults || '';
+                document.getElementById('doctorNotes').textContent = appointment.doctorNotes || '';
+                document.getElementById('prescription').textContent = appointment.prescription || '';
+            })
+            .catch(error => {
+                console.error('Error fetching appointment:', error);
+                alert('Unable to load appointment details.');
+            });
+    });
+</script>
+</body>
+</html>
