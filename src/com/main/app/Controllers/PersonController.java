@@ -86,4 +86,16 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting person: " + e.getMessage());
         }
     }
+    // READ all persons with role = 2
+    @GetMapping("/role/2")
+    public ResponseEntity<List<Person>> getAllPersonsWithRole2() {
+        try {
+            List<Person> persons = personService.findPersonsByRole(2L);
+            return ResponseEntity.ok(persons);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
+
 }

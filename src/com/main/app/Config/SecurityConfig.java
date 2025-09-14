@@ -25,27 +25,38 @@ public class SecurityConfig {
 
  @Autowired
  private RoleService roleService;
- @Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/register", "/doLogin", "/persons/update"))
                 .authorizeHttpRequests(auth -> auth
+                        // public endpoints
                         .requestMatchers("/register", "/login", "/doLogin", "/css/**").permitAll()
+                        // API endpoints (no CSRF required)
+                        .requestMatchers("/api/**").permitAll()
+                        // role-based restrictions
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/patient/**").hasRole("PATIENT")
+                        // fallback
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-.loginPage("/login").loginProcessingUrl("/doLogin").failureUrl("/login?error=true").successHandler(customAuthenticationSuccessHandler())
+                        .loginPage("/login")
+                        .loginProcessingUrl("/doLogin")
+                        .failureUrl("/login?error=true")
+                        .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
-                        .permitAll());
+                        .permitAll()
+                );
+
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

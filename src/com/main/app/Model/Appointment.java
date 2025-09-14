@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class Appointment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "appointment_seq")
+    @SequenceGenerator(name = "appointment_seq", sequenceName = "appointment_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "title", nullable = false)
@@ -58,7 +59,20 @@ public class Appointment {
     @Column(name = "prescription")
     private String prescription;
 
-    // Getters and Setters
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
 
+        if (this.status == null) {
+            this.status = "Scheduled"; // default status
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }

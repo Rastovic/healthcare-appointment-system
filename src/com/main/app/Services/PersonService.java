@@ -60,6 +60,10 @@ public class PersonService {
         return personRepository.save(person);
     }
 
+    public List<Person> findPersonsByRole(Long roleId) {
+        return personRepository.findByRoleId(roleId);
+    }
+
     public Person fromDto(PersonDto dto) {
         Person person = new Person();
         person.setId(dto.getId());

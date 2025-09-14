@@ -4,31 +4,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Base layout */
+        html, body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1e3a8a 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+
+        body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        /* Header styling */
+        header.futuristic-header {
+            background-color: #1e1e2f;
+            padding: 15px 0;
+            color: #fff;
+        }
+
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            color: #00d4ff;
+            margin: 0;
+        }
+
+        header .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        header nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        header nav ul li a:hover {
+            color: #00d4ff;
+        }
+
+        .profile-icon img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Main container */
+        main.container {
+            max-width: 1300px;
+            margin: 40px auto 80px;
+            background-color: rgba(30, 30, 47, 0.5); /* More transparent background */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            color: #fff;
+            flex: 1;
+        }
+
+        h2 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .table-container table {
+            width: 100%;
+            length: 100%
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .table-container th, .table-container td {
+            padding: 15px 25px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        .table-container th {
+            color: #00d4ff;
+            font-weight: 600;
+            width: 30%;
+        }
+
+        .table-container td {
+            color: #ccc;
+            width: 70%;
+        }
+
+        /* Back button */
+        .back-container {
+            text-align: center;
+            margin: 30px
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: transparent;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+            color: #00bcd4;
+            border-color: #00bcd4;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer.futuristic-footer {
+            background-color: #1e1e2f;
+            padding: 15px 0;
+            color: #fff;
+            text-align: center;
+            height: 60px;
+            line-height: 60px;
+            width: 100%;
+        }
+
+        footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            main.container {
+                margin: 20px 10px 60px;
+                padding: 20px;
+            }
+            .table-container th, .table-container td {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            header .container {
+                padding: 0 10px;
+            }
+            header .nav-container {
+                gap: 15px;
+            }
+            header nav ul {
+                gap: 15px;
+            }
+            footer.futuristic-footer {
+                height: 50px;
+                line-height: 50px;
+            }
+        }
+    </style>
 </head>
 <body>
 <header class="futuristic-header">
     <div class="container">
         <h1>Healthcare</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/doctor/panel}">Dashboard</a></li>
-                <li><a th:href="@{/doctor/appointments}">Appointments</a></li>
-                <li><a th:href="@{/logout}">Logout</a></li>
-            </ul>
-        </nav>
-        <!-- Profile icon -->
-        <div class="profile-icon">
-            <a th:href="@{/profile/{id}(id=${person.id})}">
-                <img th:src="@{/images/profile-icon.png}" alt="Profile" />
-            </a>
+        <div class="nav-container">
+            <nav>
+                <ul>
+                    <li><a th:href="@{/doctor/appointments}">Appointments</a></li>
+                    <li><a th:href="@{/logout}">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="profile-icon">
+                <a th:href="@{/profile/{id}(id=${person.id})}">
+                    <img th:src="@{/images/profile-icon.png}" alt="Profile" />
+                </a>
+            </div>
         </div>
     </div>
 </header>
 
-<main class="container futuristic-container">
+<main class="container">
     <h2>Profile</h2>
-    <div class="details-container">
+    <div class="table-container">
         <table>
             <tbody>
             <tr>
@@ -58,14 +248,15 @@
             </tbody>
         </table>
     </div>
-    <div class="back-button">
-        <a th:href="@{/doctor/panel}">← Back to Dashboard</a>
+    <div class="back-container">
+        <a th:href="@{/doctor/appointments}" class="back-button">Back to Appointments</a>
     </div>
 </main>
 
+
 <footer class="futuristic-footer">
     <div class="container">
-        <p>luf</p>
+        <p>&copy; 2025 Healthcare. All rights reserved.</p>
     </div>
 </footer>
 </body>

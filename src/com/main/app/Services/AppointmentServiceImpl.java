@@ -28,6 +28,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
         Appointment appointment = convertDtoToEntity(appointmentDto);
         appointment.setCreatedAt(LocalDateTime.now());
+        appointment.setDoctorId(appointmentDto.getDoctorId());
         Appointment savedAppointment = appointmentRepository.save(appointment);
         return convertEntityToDto(savedAppointment);
     }
