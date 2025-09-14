@@ -33,16 +33,6 @@ public class AppointmentViewController {
 
         return "doctor/doctor_appointments"; // your list template
     }
-    @GetMapping("/create")
-    public String getCreateAppointmentPage(@RequestParam(value = "personId", required = false) Long personId, Model model) {
-        Person currentPerson = personService.findPersonById(personId);
-        if (currentPerson == null) {
-            return "redirect:/login"; // Redirect to login if no user is authenticated
-        }
-        model.addAttribute("person", currentPerson);
-        model.addAttribute("appointment", new AppointmentDto()); // Empty DTO for the form
-        return "appointment/create-appointment"; // Path to create-appointment.html
-    }
 
     // Single appointment detail
     @GetMapping("/{id}")
@@ -53,7 +43,7 @@ public class AppointmentViewController {
         }
         model.addAttribute("appointment", appointment);
         model.addAttribute("personId",appointment.getDoctorId());
-        return "appointment/appointment-detail"; // your detail template
+        return "appointment/appointment-detail.html"; // your detail template
     }
 }
 

@@ -28,7 +28,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 redirectUrl = "/admin/panel";
                 break;
             } else if (authority.getAuthority().equals("ROLE_DOCTOR")) {
-                redirectUrl = "/doctor/appointments";
+                redirectUrl = "/doctor/dashboard.html"; // frontend page
                 break;
             } else if (authority.getAuthority().equals("ROLE_PATIENT")) {
                 redirectUrl = "/patient/patient_dashboard";

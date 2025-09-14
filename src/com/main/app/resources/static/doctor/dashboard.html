@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointment Details</title>
+    <title>Doctor's Appointments</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- keep your styles here -->
     <style>
         /* Base layout */
         html, body {
@@ -175,12 +177,13 @@
         <div class="header-right">
             <nav>
                 <ul>
-                    <li><a href="/doctor/appointments">Appointments</a></li>
-                    <li><a th:href="@{/logout}">Logout</a></li>
+                    <li><a href="/doctor/dashboard.html">Appointments</a></li>
+                    <li><a href="/appointment/create.html">Create Appointment</a></li>
+                    <li><a href="/logout">Logout</a></li>
                 </ul>
             </nav>
             <div class="profile-icon">
-                <a th:href="@{/profile/{id}(id=${personId})}">
+                <a href="/profile.html">
                     <img src="/images/profile-icon.png" alt="Profile">
                 </a>
             </div>
@@ -189,59 +192,29 @@
 </header>
 
 <main class="container futuristic-container">
-    <h2>Appointment Details</h2>
-    <div class="details-container" >
-        <table>
-            <tbody>
-            <tr>
-                <th>Title</th>
-                <td th:text="${appointment.title} ?: ''">Title</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td th:text="${appointment.description} ?: ''">Description</td>
-            </tr>
+    <h2>Your Appointments</h2>
+    <div class="table-container">
+        <table id="appointments-table">
+            <thead>
             <tr>
                 <th>Date</th>
-                <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd')} ?: ''">Date</td>
-            </tr>
-            <tr>
                 <th>Time</th>
-                <td th:text="${#temporals.format(appointment.startTime, 'HH:mm')} ?: ''">Time</td>
-            </tr>
-            <tr>
                 <th>Status</th>
-                <td th:text="${appointment.status} ?: ''">Status</td>
-            </tr>
-            <tr>
+                <th>Title</th>
+                <th>Description</th>
                 <th>Location</th>
-                <td th:text="${appointment.location} ?: ''">Location</td>
-            </tr>
-            <tr>
-                <th>Person ID</th>
-                <td th:text="${appointment.personId} ?: ''">Person ID</td>
-            </tr>
-            <tr>
-                <th>Doctor ID</th>
-                <td th:text="${appointment.doctorId} ?: ''">Doctor ID</td>
-            </tr>
-            <tr>
                 <th>Test Results</th>
-                <td th:text="${appointment.testResults} ?: ''">Test Results</td>
-            </tr>
-            <tr>
                 <th>Doctor Notes</th>
-                <td th:text="${appointment.doctorNotes} ?: ''">Doctor Notes</td>
-            </tr>
-            <tr>
                 <th>Prescription</th>
-                <td th:text="${appointment.prescription} ?: ''">Prescription</td>
+                <th>Person ID</th>
+                <th>Doctor ID</th>
+                <th>Action</th>
             </tr>
+            </thead>
+            <tbody id="appointments-body">
+            <!-- rows will be injected here -->
             </tbody>
         </table>
-    </div>
-    <div class="back-container">
-        <a th:href="@{/doctor/appointments}" class="back-button">← Back to Appointments</a>
     </div>
 </main>
 
@@ -250,5 +223,44 @@
         <p>&copy; 2025 Health Care System</p>
     </div>
 </footer>
+
+<script>
+    async function loadAppointments() {
+      try {
+        const response = await fetch("/api/doctor/appointments");
+        if (!response.ok) throw new Error("Failed to fetch appointments");
+
+        const appointments = await response.json();
+        const tbody = document.getElementById("appointments-body");
+        tbody.innerHTML = "";
+
+        appointments.forEach(app => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${app.startTime ? new Date(app.startTime).toLocaleDateString() : ""}</td>
+            <td>${app.startTime ? new Date(app.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}</td>
+            <td>${app.status || ""}</td>
+            <td>${app.title || ""}</td>
+            <td>${app.description || ""}</td>
+            <td>${app.location || ""}</td>
+            <td>${app.testResults || ""}</td>
+            <td>${app.doctorNotes || ""}</td>
+            <td>${app.prescription || ""}</td>
+            <td>${app.personId || ""}</td>
+            <td>${app.doctorId || ""}</td>
+            <td><a href="/appointment/appointment-detail.html?id=${app.id}">View</a>
+</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert("Could not load appointments.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadAppointments);
+</script>
 </body>
 </html>

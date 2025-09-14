@@ -63,35 +63,35 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
- @Bean
- public UserDetailsService userDetailsService(PersonService personService) {
- return username -> {
- Person person = personService.findByUsername(username);
- if (person == null) {
- throw new UsernameNotFoundException("User not found with username: " + username);
- }
+     @Bean
+     public UserDetailsService userDetailsService(PersonService personService) {
+         return username -> {
+             Person person = personService.findByUsername(username);
+             if (person == null) {
+                throw new UsernameNotFoundException("User not found with username: " + username);
+             }
 
-                com.main.app.Model.Role role = roleService.findByRoleId(person.getRoleId());
- if (role == null) {
- throw new UsernameNotFoundException("Role not found for user: " + username);
- }
+             com.main.app.Model.Role role = roleService.findByRoleId(person.getRoleId());
+             if (role == null) {
+                throw new UsernameNotFoundException("Role not found for user: " + username);
+             }
 
- return User.builder().username(person.getUserName()).password(person.getPasswordHash()).roles(role.getRoleName()).build();
-            };
- }
- @Bean
- public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
- return authenticationConfiguration.getAuthenticationManager();
- }
+             return User.builder().username(person.getUserName()).password(person.getPasswordHash()).roles(role.getRoleName()).build();
+         };
+     }
+     @Bean
+     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+         return authenticationConfiguration.getAuthenticationManager();
+     }
 
- @Bean
- public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
- return new CustomAuthenticationSuccessHandler();
- }
+     @Bean
+     public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+     }
 
- @Bean
- public RedirectStrategy redirectStrategy() {
- return new DefaultRedirectStrategy();
- }
+     @Bean
+     public RedirectStrategy redirectStrategy() {
+        return new DefaultRedirectStrategy();
+     }
 }
 

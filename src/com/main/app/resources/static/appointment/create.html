@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Appointment</title>
+    <style>
+        /* (same CSS you had, unchanged) */
+        html, body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1e3a8a 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+        body::-webkit-scrollbar { display: none; }
+        header.futuristic-header { background-color: #1e1e2f; padding: 15px 0; color: #fff; }
+        header .container { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header h1 { color: #00d4ff; margin: 0; }
+        header .nav-container { display: flex; align-items: center; gap: 30px; }
+        header nav ul { list-style: none; display: flex; gap: 25px; margin: 0; padding: 0; }
+        header nav ul li a { color: #fff; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        header nav ul li a:hover { color: #00d4ff; }
+        .profile-icon img { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        main.container { max-width: 1200px; margin: 40px auto 80px; background-color: rgba(30, 30, 47, 0.5); padding: 30px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #fff; flex: 1; }
+        h2 { color: #00d4ff; text-align: center; margin-bottom: 30px; font-size: 1.8em; }
+        .form-container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; color: #00d4ff; font-weight: 600; margin-bottom: 8px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background-color: #2a2a3f; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 16px; box-sizing: border-box; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%2300d4ff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 10px top 50%; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 5px rgba(0, 212, 255, 0.5); }
+        .button-container { text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 20px; }
+        .submit-button, .back-button { display: inline-block; padding: 12px 20px; background-color: transparent; border: 2px solid #00d4ff; color: #00d4ff; border-radius: 6px; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; }
+        .submit-button:hover, .back-button:hover { background-color: rgba(0, 212, 255, 0.1); color: #00bcd4; border-color: #00bcd4; transform: translateY(-2px); }
+        footer.futuristic-footer { background-color: #1e1e2f; padding: 15px 0; color: #fff; text-align: center; height: 60px; line-height: 60px; width: 100%; }
+        footer .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        @media (max-width: 600px) { main.container { margin: 20px 10px 60px; padding: 20px; } .form-group input, .form-group select, .form-group textarea { font-size: 14px; } header .container { padding: 0 10px; } header .nav-container { gap: 15px; } header nav ul { gap: 15px; } footer.futuristic-footer { height: 50px; line-height: 50px; } }
+    </style>
+</head>
+<body>
+<header class="futuristic-header">
+    <div class="container">
+        <h1>Healthcare</h1>
+        <div class="nav-container">
+            <nav>
+                <ul>
+                    <li><a href="/appointments/appointments.html">Appointments</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="profile-icon">
+                <a href="/profile.html">
+                    <img src="/images/profile-icon.png" alt="Profile" />
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <h2>Create Appointment</h2>
+    <div class="form-container">
+        <form id="appointmentForm" action="/api/appointments/create" method="post">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" required />
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="startTime">Start Time</label>
+                <input type="datetime-local" id="startTime" name="startTime" required />
+            </div>
+            <div class="form-group">
+                <label for="endTime">End Time</label>
+                <input type="datetime-local" id="endTime" name="endTime" required />
+            </div>
+            <div class="form-group">
+                <label for="doctorId">Doctor</label>
+                <select id="doctorId" name="doctorId" required>
+                    <option value="">Select a Doctor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" />
+            </div>
+            <input type="hidden" id="status" name="status" value="Scheduled" />
+            <div class="button-container">
+                <button type="submit" class="submit-button">Create Appointment</button>
+                <a href="/appointments/appointments.html" class="back-button">Back to Appointments</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer class="futuristic-footer">
+    <div class="container">
+        <p>&copy; 2025 Healthcare. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    // Fetch doctors
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/persons/role/2')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch doctors');
+                return response.json();
+            })
+            .then(doctors => {
+                const doctorSelect = document.getElementById('doctorId');
+                doctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.id;
+                    option.textContent = `${doctor.firstName} ${doctor.lastName}`;
+                    doctorSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching doctors:', error);
+                alert('Unable to load doctors.');
+            });
+
+        // Submit form
+        document.getElementById('appointmentForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const appointmentData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                startTime: formData.get('startTime'),
+                endTime: formData.get('endTime'),
+                doctorId: parseInt(formData.get('doctorId')),
+                location: formData.get('location'),
+                status: formData.get('status')
+            };
+
+            try {
+                const response = await fetch(event.target.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appointmentData)
+                });
+
+                if (response.ok) {
+                    window.location.href = '/appointments/appointments.html';
+                } else {
+                    const errorText = await response.text();
+                    alert('Failed to create appointment: ' + errorText);
+                }
+            } catch (error) {
+                console.error('Error creating appointment:', error);
+                alert('An error occurred while creating the appointment.');
+            }
+        });
+    });
+</script>
+</body>
+</html>

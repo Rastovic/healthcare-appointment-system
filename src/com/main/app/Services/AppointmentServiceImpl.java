@@ -97,7 +97,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentDto.setId(appointment.getId());
         appointmentDto.setTitle(appointment.getTitle());
         appointmentDto.setDescription(appointment.getDescription());
-appointmentDto.setStartTime(appointment.getStartTime());
+        appointmentDto.setStartTime(appointment.getStartTime());
         appointmentDto.setEndTime(appointment.getEndTime());
         appointmentDto.setStatus(appointment.getStatus());
         appointmentDto.setLocation(appointment.getLocation());
