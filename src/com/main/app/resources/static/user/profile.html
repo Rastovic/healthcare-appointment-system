@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <style>
+        html, body {
+          font-family: 'Inter', sans-serif;
+          background: linear-gradient(135deg, #0d1b2a 0%, #1e3a8a 100%);
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          overflow-x: hidden;
+        }
+
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+        body::-webkit-scrollbar { display: none; }
+
+        header.futuristic-header {
+          background-color: #1e1e2f;
+          padding: 15px 0;
+          color: #fff;
+        }
+        header .container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        header h1 { color: #00d4ff; margin: 0; }
+        header .nav-container { display: flex; align-items: center; gap: 30px; }
+        header nav ul { list-style: none; display: flex; gap: 25px; margin: 0; padding: 0; }
+        header nav ul li a { color: #fff; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        header nav ul li a:hover { color: #00d4ff; }
+        .profile-icon img { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+        main.container {
+          max-width: 1200px;
+          margin: 40px auto;
+          background: rgba(30,30,47,0.8);
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 2rem;
+          padding: 2.5rem;
+          border-radius: 1rem;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+          color: #fff;
+        }
+
+        h2 {
+          font-size: 2rem;
+          color: #00d4ff;
+          margin-bottom: 1.5rem;
+          text-align: center;
+          font-weight: 700;
+          text-shadow: 0 0 8px rgba(0,212,255,0.7);
+        }
+
+        .profile-header { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+
+        .profile-picture {
+          position: relative;
+          width: 150px; height: 150px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 4px solid #00d4ff;
+          background: #1e1e2f;
+          box-shadow: 0 0 15px rgba(0,212,255,0.5);
+        }
+        .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-overlay {
+          position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: flex; align-items: center; justify-content: center;
+          opacity: 0; transition: opacity 0.3s; cursor: pointer;
+        }
+        .profile-picture:hover .upload-overlay { opacity: 1; }
+        .upload-overlay i { color: #00d4ff; font-size: 1.5rem; }
+
+        .profile-info {
+          display: flex; flex-direction: column; gap: 1rem;
+          padding: 1.5rem;
+          background: rgba(255,255,255,0.05);
+          border-radius: 0.75rem;
+          border: 1px solid rgba(0,212,255,0.3);
+        }
+        .profile-info div {
+          font-size: 1rem;
+          display: flex;
+          justify-content: space-between;
+        }
+        .profile-info div span { font-weight: 600; color: #00d4ff; }
+
+        .role-specific { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        button, a.button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: transparent;
+          border: 2px solid #00d4ff;
+          color: #00d4ff;
+          border-radius: 0.5rem;
+          font-size: 1rem;
+          text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        button:hover, a.button:hover {
+          background: rgba(0,212,255,0.1);
+          color: #00bcd4;
+          border-color: #00bcd4;
+        }
+
+        @media (max-width: 768px) {
+          main.container { grid-template-columns: 1fr; padding: 1.5rem; }
+          .profile-picture { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="futuristic-header">
+    <div class="container">
+        <h1>Healthcare</h1>
+        <div class="nav-container">
+            <nav>
+                <ul>
+                    <li><a href="/user/profile.html">Profile</a></li>
+                    <li><a href="/appointments/appointments.html">Appointments</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="profile-icon">
+                <a href="/user/profile.html">
+                    <img src="/images/profile-icon.png" alt="Profile"/>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div class="profile-header">
+        <h2>Patient Profile</h2>
+        <div class="profile-picture">
+            <img id="profileImage" src="/images/default-profile.png" alt="Profile Picture"/>
+            <div class="upload-overlay"><i class="fas fa-camera"></i></div>
+            <input type="file" id="profilePictureUpload" accept="image/*" style="display: none;"/>
+        </div>
+    </div>
+
+    <div>
+        <div class="profile-info">
+            <div>Username: <span id="username"></span></div>
+            <div>First Name: <span id="firstName"></span></div>
+            <div>Last Name: <span id="lastName"></span></div>
+            <div>Email: <span id="email"></span></div>
+            <div>Date of Birth: <span id="birthDate"></span></div>
+            <div>Phone Number: <span id="phone"></span></div>
+            <div>Address: <span id="address"></span></div>
+            <div>Medical History: <span id="medicalHistory"></span></div>
+            <div>Insurance Provider: <span id="insuranceProvider"></span></div>
+        </div>
+
+        <div id="patientSection" class="role-specific">
+            <a id="editProfile" class="button">Edit Profile</a>
+            <a href="/appointments/request" class="button">Request Appointment</a>
+        </div>
+    </div>
+</main>
+
+<script>
+    function getUserIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    document.querySelector('.profile-picture').addEventListener('click', () => {
+      document.getElementById('profilePictureUpload').click();
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const userId = getUserIdFromUrl() || 1;
+      try {
+        const response = await fetch(`/api/persons/${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const user = await response.json();
+
+        document.getElementById("username").textContent = user.userName || "Not provided";
+        document.getElementById("firstName").textContent = user.firstName || "Not provided";
+        document.getElementById("lastName").textContent = user.lastName || "Not provided";
+        document.getElementById("email").textContent = user.email || "Not provided";
+        document.getElementById("birthDate").textContent = user.birthDate || "Not provided";
+        document.getElementById("phone").textContent = user.phone || "Not provided";
+        document.getElementById("address").textContent = user.address || "Not provided";
+        document.getElementById("medicalHistory").textContent = user.medicalHistory || "None";
+        document.getElementById("insuranceProvider").textContent = user.insuranceProvider || "Not provided";
+
+        if (user.profilePicture) document.getElementById("profileImage").src = user.profilePicture;
+        document.getElementById("editProfile").href = `/user/edit_profile.html?id=${user.id}`;
+      } catch (error) {
+        console.error(error);
+        alert("Could not load profile.");
+      }
+    });
+</script>
+
+</body>
+</html>

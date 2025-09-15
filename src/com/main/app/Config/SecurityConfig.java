@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/register", "/doLogin", "/persons/update"))
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
-                        .requestMatchers("/register", "/login", "/doLogin", "/css/**").permitAll()
+                        .requestMatchers("/register", "/login", "/images/**","/doLogin", "/css/**").permitAll()
                         // API endpoints (no CSRF required)
                         .requestMatchers("/api/**").permitAll()
                         // role-based restrictions
