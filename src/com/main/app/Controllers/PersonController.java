@@ -46,7 +46,18 @@ public class PersonController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found with ID: " + id);
     }
-
+    @GetMapping("/admins")
+    public List<Person> getAdmins() {
+        return personService.findPersonsByRole(1L);
+    }
+    @GetMapping("/doctors")
+    public List<Person> getDoctors() {
+        return personService.findPersonsByRole(2L);
+    }
+    @GetMapping("/patients")
+    public List<Person> getPatients() {
+        return personService.findPersonsByRole(3L);
+    }
     // UPDATE a person
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePerson(@PathVariable Long id, @RequestBody PersonDto personDto) {

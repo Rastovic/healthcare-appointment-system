@@ -31,7 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 redirectUrl = "/doctor/dashboard.html"; // frontend page
                 break;
             } else if (authority.getAuthority().equals("ROLE_PATIENT")) {
-                redirectUrl = "/patient/patient_dashboard";
+                redirectUrl = "/patient/dashboard.html";
                 break;
             }
         }

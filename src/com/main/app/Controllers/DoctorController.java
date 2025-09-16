@@ -26,6 +26,10 @@ public class DoctorController {
     @Autowired
     private PersonService personService;
 
+
+
+
+
     @GetMapping("/appointments")
     public ResponseEntity<List<AppointmentDto>> getAppointments(Authentication authentication) {
         String userName  = SecurityContextHolder.getContext().getAuthentication().getName();

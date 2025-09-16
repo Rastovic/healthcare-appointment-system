@@ -52,6 +52,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<AppointmentDto> getAppointmentsByPatientId(Long patientId) {
+        List<Appointment> appointments = appointmentRepository.findByPersonId(patientId);
+        return appointments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+
+    }
+
+    @Override
     public AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(id);
         if (appointmentOptional.isPresent()) {

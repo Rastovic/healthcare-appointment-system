@@ -13,6 +13,7 @@ public interface AppointmentService {
     AppointmentDto updateAppointment(Long id, AppointmentDto appointmentDto);
     void deleteAppointment(Long id);
     List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId);
+    List<AppointmentDto> getAppointmentsByPatientId(Long doctorId);
 
     AppointmentDto convertEntityToDto(Appointment appointment);
 }

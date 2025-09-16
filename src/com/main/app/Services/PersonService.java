@@ -36,9 +36,7 @@ public class PersonService {
 
 
     public Person findByUsername(String username) {
-
         return personRepository.findByUserName(username);
-
     }
 
     public Person findPersonById(Long personId) {
