@@ -3,6 +3,7 @@ package com.main.app.Controllers;
 
 import com.main.app.Config.SecurityConfig;
 import com.main.app.Dto.AppointmentDto;
+import com.main.app.Dto.PersonDto;
 import com.main.app.Model.Person;
 import com.main.app.Model.Role;
 import com.main.app.Services.AppointmentService;
@@ -12,9 +13,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.*;
 
-@Controller
+@RestController
 public class AuthController {
 
     @Autowired
@@ -40,15 +45,7 @@ public class AuthController {
     @Autowired
     private AppointmentService appointmentService;
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
 
-    @GetMapping("/register")
-    public String register() {
-        return "register";
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestParam String username,
@@ -107,45 +104,23 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+    @GetMapping("/api/auth/me")
+    public Map<String, Object> getCurrentUser(Authentication authentication) {
+        User springUser = (User) authentication.getPrincipal();
+        Person person = personService.findByUsername(springUser.getUsername());
+        Role role = roleService.findByRoleId(person.getRoleId());
 
-        return "redirect:/login";
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", person.getId());
+        response.put("userName", person.getUserName());
+        response.put("firstName", person.getFirstName());
+        response.put("lastName", person.getLastName());
+        response.put("email", person.getEmail());
+        response.put("birthDate", person.getBirthDate());
+        response.put("roleName", role.getRoleName()); // <- add this
+        return response;
     }
 
 
 
-
-    @GetMapping("/admin/panel")
-    public String adminPanel() {
-        return "admin/panel";
-    }
-
-    @GetMapping("/doctor/appointments")
-    public String doctorAppointments(Model model) {
-        String userName  = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person doctor = personService.findByUsername(userName);
-        List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctorId(doctor.getId());
-        model.addAttribute("appointments", appointments);
-        model.addAttribute("person", doctor);
-        return "doctor/doctor_appointments";
-    }
-    @GetMapping("/patient/patient_dashboard")
-    public String patientDashboard() {
-        return "patient/patient_dashboard";
-    }
-
-
-    @GetMapping("/forbidden")
-    public String forbidden() {
-        return "forbidden"; // point this to a Thymeleaf/HTML template
-    }
 }
