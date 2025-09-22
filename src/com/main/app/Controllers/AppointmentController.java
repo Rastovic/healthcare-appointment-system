@@ -33,7 +33,7 @@ public class AppointmentController {
     }
 
     // Create new appointment
-    @PostMapping
+    @PostMapping("/create")
     public AppointmentDto createAppointment(@RequestBody AppointmentDto appointment) {
         return appointmentService.createAppointment(appointment);
     }

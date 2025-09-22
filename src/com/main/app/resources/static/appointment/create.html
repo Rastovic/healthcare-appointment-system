@@ -53,7 +53,44 @@
 <div id="footer-placeholder"></div>
 
 <script>
-    // Load header and footer
+    let personId = null;
+    let userRole = null;
+
+    async function loadCurrentUser() {
+        try {
+            const res = await fetch("/api/auth/me");
+            if (!res.ok) throw new Error("Not authenticated");
+            const data = await res.json();
+
+            personId = data.id;
+            userRole = data.roleName; // "ADMIN", "DOCTOR", "PATIENT"
+            console.log("Logged in:", personId, userRole);
+
+            // update dashboard link in header if present
+            const dashboardLink = document.querySelector('#header-placeholder a#dashboardLink');
+            if (dashboardLink) {
+                if (userRole === "ADMIN") dashboardLink.href = "/admin/dashboard.html";
+                else if (userRole === "DOCTOR") dashboardLink.href = "/doctor/dashboard.html";
+                else if (userRole === "PATIENT") dashboardLink.href = "/patient/dashboard.html";
+            }
+        } catch (err) {
+            console.error("Error fetching current user:", err);
+            window.location.href = "/login";
+        }
+    }
+
+    function redirectToDashboard(roleName) {
+        if (roleName === "ADMIN") {
+            window.location.href = "/admin/dashboard.html";
+        } else if (roleName === "DOCTOR") {
+            window.location.href = "/doctor/dashboard.html";
+        } else if (roleName === "PATIENT") {
+            window.location.href = "/patient/dashboard.html";
+        } else {
+            window.location.href = "/";
+        }
+    }
+
     async function loadHTML(id, url) {
         try {
             const res = await fetch(url);
@@ -65,7 +102,7 @@
     }
 
     // Load header/footer first, then setup page
-    loadHTML('header-placeholder', '/components/header.html').then(() => {
+    loadHTML('header-placeholder', '/components/header.html').then(async () => {
         // Add Create Appointment link to nav dynamically
         const navList = document.querySelector('#header-placeholder nav ul');
         if (navList && !document.querySelector('#header-placeholder a[href="/appointment/create.html"]')) {
@@ -73,6 +110,9 @@
             li.innerHTML = '<a href="/appointment/create.html">Create Appointment</a>';
             navList.appendChild(li);
         }
+
+        // fetch current user info (sets personId + userRole)
+        await loadCurrentUser();
 
         // Fetch doctors
         fetch('/api/persons/role/2')
@@ -97,10 +137,13 @@
                 description: formData.get('description'),
                 startTime: formData.get('startTime'),
                 endTime: formData.get('endTime'),
+                personId: personId,   // logged-in user id
                 doctorId: parseInt(formData.get('doctorId')),
                 location: formData.get('location'),
                 status: formData.get('status')
             };
+
+            console.log("Submitting appointment:", appointmentData);
 
             try {
                 const response = await fetch(event.target.action, {
@@ -110,7 +153,7 @@
                 });
 
                 if (response.ok) {
-                    window.location.href = '/doctor/dashboard.html';
+                    redirectToDashboard(userRole);
                 } else {
                     const errorText = await response.text();
                     alert('Failed to create appointment: ' + errorText);
