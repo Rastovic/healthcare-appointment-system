@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Appointments</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #ccc;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .empty-state h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .action-buttons .back-button {
+            padding: 12px 20px;
+            background-color: #00d4ff;
+            color: #1e1e2f;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+        .action-buttons .back-button:hover {
+            background-color: #00bcd4;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main class="container futuristic-container">
+    <h2>Previous Appointments</h2>
+    <div class="table-container" id="appointments-container">
+        <table id="previous-appointments-table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="previous-appointments-body"></tbody>
+        </table>
+    </div>
+
+    <!-- New navigation buttons -->
+    <div class="action-buttons">
+        <a href="/appointment/upcoming-appointments.html" class="back-button">→ View Upcoming</a>
+        <a href="/appointment/create.html" class="back-button">+ Create New</a>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    let patientId = null;
+    axios.defaults.withCredentials = true;
+
+    async function loadHTML(id, url) {
+        const res = await fetch(url);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+    }
+
+    async function loadAppointments() {
+        const res = await axios.get(`/api/auth/me`);
+        patientId = res.data.id;
+
+        const response = await axios.get(`/api/appointments/patient/${patientId}/previous`);
+        const tbody = document.getElementById("previous-appointments-body");
+        const container = document.getElementById("appointments-container");
+        tbody.innerHTML = "";
+
+        if (response.data.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No Previous Appointments</h3>
+                    <p>You haven’t had any appointments yet.</p>
+                </div>
+            `;
+            return;
+        }
+
+        for (const app of response.data) {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${app.startTime.substring(0,10)}</td>
+                    <td>${app.startTime.substring(11,16)}</td>
+                    <td>${app.doctorId}</td>
+                    <td>${app.status}</td>
+                    <td><a href="/appointment/appointment-detail.html?id=${app.id}">View</a></td>
+                </tr>`;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadAppointments);
+
+    // Load header/footer
+    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('footer-placeholder', '/components/footer.html');
+</script>
+</body>
+</html>

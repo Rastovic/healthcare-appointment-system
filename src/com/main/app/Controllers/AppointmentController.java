@@ -53,4 +53,18 @@ public class AppointmentController {
     public void deleteAppointment(@PathVariable Long id) {
         appointmentService.deleteAppointment(id);
     }
+
+
+    // Previous appointments for a patient
+    @GetMapping("/patient/{personId}/previous")
+    public List<AppointmentDto> getPreviousAppointmentsForPatient(@PathVariable Long personId) {
+        return appointmentService.getPreviousAppointments(personId);
+    }
+
+    // Upcoming appointments for a patient
+    @GetMapping("/patient/{personId}/upcoming")
+    public List<AppointmentDto> getUpcomingAppointmentsForPatient(@PathVariable Long personId) {
+        return appointmentService.getUpcomingAppointments(personId);
+    }
+
 }

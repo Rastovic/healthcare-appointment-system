@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Details</title>
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         html, body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -60,24 +61,7 @@
     </style>
 </head>
 <body>
-<header class="futuristic-header">
-    <div class="header-inner">
-        <h1>Secure Health Care Online</h1>
-        <div class="header-right">
-            <nav>
-                <ul>
-                    <li><a href="/doctor/dashboard.html">Appointments</a></li>
-                    <li><a href="/logout">Logout</a></li>
-                </ul>
-            </nav>
-            <div class="profile-icon">
-                <a href="/user/profile.html">
-                    <img src="/images/profile-icon.png" alt="Profile">
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
+<div id="header-placeholder"></div>
 
 <main class="container futuristic-container">
     <h2>Appointment Details</h2>
@@ -99,19 +83,24 @@
         </table>
     </div>
     <div class="back-container">
-        <a href="/doctor/dashboard.html" class="back-button">← Back to Appointments</a>
+        <a href="/appointment/previous-appointments.html" class="back-button">← View Previous Appointments</a>
+        <a href="/appointment/upcoming-appointments.html" class="back-button">View Upcoming Appointments →</a>
     </div>
+
 </main>
 
-<footer class="futuristic-footer">
-    <div class="container">
-        <p>&copy; 2025 Health Care System</p>
-    </div>
-</footer>
+<div id="footer-placeholder"></div>
 
 <script>
+
+
+    async function loadHTML(id, url) {
+        const res = await fetch(url);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        // Get appointmentId from query string ?id=123
         const params = new URLSearchParams(window.location.search);
         const appointmentId = params.get('id');
 
@@ -146,6 +135,10 @@
                 alert('Unable to load appointment details.');
             });
     });
+
+    // Load header/footer first, then user data
+    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('footer-placeholder', '/components/footer.html');
 </script>
 </body>
 </html>

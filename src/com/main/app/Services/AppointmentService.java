@@ -16,4 +16,7 @@ public interface AppointmentService {
     List<AppointmentDto> getAppointmentsByPatientId(Long doctorId);
 
     AppointmentDto convertEntityToDto(Appointment appointment);
+    List<AppointmentDto> getPreviousAppointments(Long personId);
+    List<AppointmentDto> getUpcomingAppointments(Long personId);
+
 }

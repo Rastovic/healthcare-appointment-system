@@ -133,7 +133,7 @@
     }
 
     async function loadAppointments() {
-        const res = await axios.get(`/api/appointments/patient/${patientId}`);
+        const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
         const tbody = document.querySelector("#appointmentsTable tbody");
         const presTable = document.querySelector("#prescriptionsTable tbody");
         tbody.innerHTML = "";
@@ -191,7 +191,7 @@
             endTime: form.end.value,
             location: form.location.value,
         };
-        await axios.post("/api/appointments", data);
+        await axios.post("/api/appointments/create", data);
         form.reset();
         loadAppointments();
         alert("Appointment booked!");
@@ -210,7 +210,7 @@
         await loadDoctors();
     }
     async function loadAppointments() {
-    const res = await axios.get(`/api/appointments/patient/${patientId}`);
+    const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
     const tbody = document.querySelector("#appointmentsTable tbody");
     const presTable = document.querySelector("#prescriptionsTable tbody");
     tbody.innerHTML = "";

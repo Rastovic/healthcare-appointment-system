@@ -149,4 +149,19 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return appointment;
     }
+
+
+    @Override
+    public List<AppointmentDto> getPreviousAppointments(Long personId) {
+        List<Appointment> appointments =  appointmentRepository.findByPersonIdAndStartTimeBefore(personId, LocalDateTime.now());
+        return appointments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AppointmentDto> getUpcomingAppointments(Long personId) {
+        List<Appointment> appointments =  appointmentRepository.findByPersonIdAndStartTimeAfter(personId, LocalDateTime.now());
+        return appointments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+
+    }
+
 }
