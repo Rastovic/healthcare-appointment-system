@@ -43,6 +43,10 @@ public class AppointmentController {
     public AppointmentDto updateAppointment(@PathVariable Long id, @RequestBody AppointmentDto updated) {
         return appointmentService.updateAppointment(id, updated);
     }
+    @GetMapping("/{id}")
+    public AppointmentDto getAppointment(@PathVariable Long id) {
+        return appointmentService.getAppointmentById(id);
+    }
 
     // Delete appointment
     @DeleteMapping("/{id}")

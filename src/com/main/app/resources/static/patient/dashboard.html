@@ -40,6 +40,7 @@
                 <th>Time</th>
                 <th>Doctor</th>
                 <th>Status</th>
+                <th>Action</th> <!-- Added Action column -->
             </tr>
             </thead>
             <tbody></tbody>
@@ -208,6 +209,38 @@
         await loadAppointments();
         await loadDoctors();
     }
+    async function loadAppointments() {
+    const res = await axios.get(`/api/appointments/patient/${patientId}`);
+    const tbody = document.querySelector("#appointmentsTable tbody");
+    const presTable = document.querySelector("#prescriptionsTable tbody");
+    tbody.innerHTML = "";
+    presTable.innerHTML = "";
+
+    document.getElementById("appointmentCount").innerText = res.data.length;
+
+    for (const a of res.data) {
+        const doctorName = await getPersonName(a.doctorId);
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${a.startTime.substring(0,10)}</td>
+                <td>${a.startTime.substring(11,16)} - ${a.endTime.substring(11,16)}</td>
+                <td>${doctorName}</td>
+                <td>${a.status}</td>
+                <td><a href="/appointment/appointment-detail.html?id=${a.id}">View</a></td>
+            </tr>`;
+
+        if (a.prescription || a.testResults) {
+            presTable.innerHTML += `
+            <tr>
+                <td>${a.startTime.substring(0,10)}</td>
+                <td>${doctorName}</td>
+                <td>${a.prescription || '-'}</td>
+                <td>${a.testResults || '-'}</td>
+            </tr>`;
+        }
+    }
+}
 
     // Load header/footer first, then user data
     loadHTML('header-placeholder', '/components/header.html').then(loadCurrentUser);
