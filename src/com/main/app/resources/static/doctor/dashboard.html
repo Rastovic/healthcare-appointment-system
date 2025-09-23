@@ -171,25 +171,8 @@
     </style>
 </head>
 <body>
-<header class="futuristic-header">
-    <div class="header-inner">
-        <h1>Secure Health Care Online</h1>
-        <div class="header-right">
-            <nav>
-                <ul>
-                    <li><a href="/doctor/dashboard.html">Appointments</a></li>
-                    <li><a href="/appointment/create.html">Create Appointment</a></li>
-                    <li><a href="/logout">Logout</a></li>
-                </ul>
-            </nav>
-            <div class="profile-icon">
-                <a href="/user/profile.html">
-                    <img src="/images/profile-icon.png" alt="Profile">
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
+<div id="header-placeholder"></div>
+
 
 <main class="container futuristic-container">
     <h2>Your Appointments</h2>
@@ -218,49 +201,92 @@
     </div>
 </main>
 
-<footer class="futuristic-footer">
-    <div class="container">
-        <p>&copy; 2025 Health Care System</p>
-    </div>
-</footer>
+<div id="footer-placeholder"></div>
 
 <script>
-    async function loadAppointments() {
-      try {
-        const response = await fetch("/api/doctor/appointments");
-        if (!response.ok) throw new Error("Failed to fetch appointments");
 
-        const appointments = await response.json();
-        const tbody = document.getElementById("appointments-body");
-        tbody.innerHTML = "";
+    async function loadHTML(id, url) {
+       const res = await fetch(url);
+       const html = await res.text();
+       document.getElementById(id).innerHTML = html;
+   }
+   async function loadAppointments() {
+     try {
+       const response = await fetch("/api/doctor/appointments");
+       if (!response.ok) throw new Error("Failed to fetch appointments");
 
-        appointments.forEach(app => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${app.startTime ? new Date(app.startTime).toLocaleDateString() : ""}</td>
-            <td>${app.startTime ? new Date(app.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}</td>
-            <td>${app.status || ""}</td>
-            <td>${app.title || ""}</td>
-            <td>${app.description || ""}</td>
-            <td>${app.location || ""}</td>
-            <td>${app.testResults || ""}</td>
-            <td>${app.doctorNotes || ""}</td>
-            <td>${app.prescription || ""}</td>
-            <td>${app.personId || ""}</td>
-            <td>${app.doctorId || ""}</td>
-            <td><a href="/appointment/appointment-detail.html?id=${app.id}">View</a>
+       const appointments = await response.json();
+       const tbody = document.getElementById("appointments-body");
+       tbody.innerHTML = "";
+
+       appointments.forEach(app => {
+         const row = document.createElement("tr");
+         row.innerHTML = `
+           <td>${app.startTime ? new Date(app.startTime).toLocaleDateString() : ""}</td>
+           <td>${app.startTime ? new Date(app.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}</td>
+           <td>${app.status || ""}</td>
+           <td>${app.title || ""}</td>
+           <td>${app.description || ""}</td>
+           <td>${app.location || ""}</td>
+           <td>${app.testResults || ""}</td>
+           <td>${app.doctorNotes || ""}</td>
+           <td>${app.prescription || ""}</td>
+           <td>${app.personId || ""}</td>
+           <td>${app.doctorId || ""}</td>
+           <td><a href="/appointment/appointment-detail.html?id=${app.id}">View</a>
 </td>
-          `;
-          tbody.appendChild(row);
-        });
+         `;
+         tbody.appendChild(row);
+       });
 
+     } catch (err) {
+       console.error(err);
+       alert("Could not load appointments.");
+     }
+   }
+   async function loadCurrentUser() {
+  try {
+    const res = await fetch("/api/auth/me");
+    if (!res.ok) throw new Error("Not authenticated");
+    const data = await res.json();
+
+    const userRole = data.roleName; // "ADMIN", "DOCTOR", "PATIENT"
+    console.log("User:", data.id, userRole);
+
+    // Update dashboard link
+    const dashboardLink = document.querySelector('#header-placeholder a#dashboardLink');
+    if (dashboardLink) {
+      if (userRole === "ADMIN") dashboardLink.href = "/admin/dashboard.html";
+      else if (userRole === "DOCTOR") dashboardLink.href = "/doctor/dashboard.html";
+      else if (userRole === "PATIENT") dashboardLink.href = "/patient/dashboard.html";
+      else dashboardLink.href = "/";
+    }
+  } catch (err) {
+    console.error("Error fetching current user:", err);
+    window.location.href = "/login";
+  }
+}
+
+    async function loadHTML(id, url) {
+      try {
+        const res = await fetch(url);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
       } catch (err) {
-        console.error(err);
-        alert("Could not load appointments.");
+        console.error(`Failed to load ${url}`, err);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", loadAppointments);
+    // Load header first, then update role links
+    loadHTML('header-placeholder', '/components/header.html').then(() => {
+      loadCurrentUser();
+    });
+
+
+   document.addEventListener("DOMContentLoaded", loadAppointments);
+    // Load header/footer first, then user data
+    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('footer-placeholder', '/components/footer.html');
 </script>
 </body>
 </html>

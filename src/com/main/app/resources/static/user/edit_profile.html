@@ -79,6 +79,9 @@
             background: transparent; color: #00d4ff; font-weight: 600; text-decoration: none; cursor: pointer;
             transition: all 0.3s;
         }
+        footer.futuristic-footer { background-color: #1e1e2f; padding: 15px 0; color: #fff; text-align: center; }
+        footer .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
         .button-container button:hover, .button-container a:hover {
             background-color: rgba(0,212,255,0.1); color: #00bcd4; border-color: #00bcd4;
         }
@@ -88,24 +91,7 @@
 </head>
 <body>
 
-<header class="futuristic-header">
-    <div class="container">
-        <h1>Healthcare</h1>
-        <div class="nav-container">
-            <nav>
-                <ul>
-                    <li><a href="/user/profile.html">Profile</a></li>
-                    <li><a href="/logout">Logout</a></li>
-                </ul>
-            </nav>
-            <div class="profile-icon">
-                <a href="/user/profile.html">
-                    <img src="/images/profile-icon.png" alt="Profile" />
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
+<div id="header-placeholder"></div>
 
 <main class="container">
     <div>
@@ -151,71 +137,81 @@
         </div>
     </form>
 </main>
+<div id="footer-placeholder"></div>
 
 <script>
-    document.querySelector('.profile-picture').addEventListener('click', () => {
-        document.getElementById('profilePictureUpload').click();
-    });
 
-    function getUserIdFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get("id");
-    }
+    async function loadHTML(id, url) {
+       const res = await fetch(url);
+       const html = await res.text();
+       document.getElementById(id).innerHTML = html;
+   }
+   document.querySelector('.profile-picture').addEventListener('click', () => {
+       document.getElementById('profilePictureUpload').click();
+   });
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        const userId = getUserIdFromUrl() || 1;
-        try {
-            const res = await fetch(`/api/persons/${userId}`);
-            if (!res.ok) throw new Error("Failed to fetch user data");
-            const user = await res.json();
+   function getUserIdFromUrl() {
+       const params = new URLSearchParams(window.location.search);
+       return params.get("id");
+   }
 
-            document.getElementById("username").value = user.userName || "";
-            document.getElementById("firstName").value = user.firstName || "";
-            document.getElementById("lastName").value = user.lastName || "";
-            document.getElementById("email").value = user.email || "";
-            document.getElementById("birthDate").value = user.birthDate || "";
-            document.getElementById("phone").value = user.phone || "";
-            document.getElementById("address").value = user.address || "";
-            document.getElementById("medicalHistory").value = user.medicalHistory || "";
-            document.getElementById("insuranceProvider").value = user.insuranceProvider || "";
-            if (user.profilePicture) document.getElementById("profileImage").src = user.profilePicture;
-        } catch (err) {
-            console.error(err);
-            alert("Failed to load user data.");
-        }
-    });
+   document.addEventListener("DOMContentLoaded", async () => {
+       const userId = getUserIdFromUrl() || 1;
+       try {
+           const res = await fetch(`/api/persons/${userId}`);
+           if (!res.ok) throw new Error("Failed to fetch user data");
+           const user = await res.json();
 
-    document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const userId = getUserIdFromUrl() || 1;
-        const data = {
-            username: document.getElementById("username").value,
-            firstName: document.getElementById("firstName").value,
-            lastName: document.getElementById("lastName").value,
-            email: document.getElementById("email").value,
-            dateOfBirth: document.getElementById("birthDate").value,
-            phoneNumber: document.getElementById("phone").value,
-            address: document.getElementById("address").value,
-            medicalHistory: document.getElementById("medicalHistory").value,
-            insuranceProvider: document.getElementById("insuranceProvider").value
-        };
-        try {
-            const res = await fetch(`/api/persons/${userId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            if (!res.ok) {
-                const err = await res.text();
-                throw new Error(err);
-            }
-            alert("Profile updated successfully!");
-            window.location.href = `/user/profile.html?id=${userId}`;
-        } catch (err) {
-            console.error(err);
-            alert("Failed to update profile: " + err.message);
-        }
-    });
+           document.getElementById("username").value = user.userName || "";
+           document.getElementById("firstName").value = user.firstName || "";
+           document.getElementById("lastName").value = user.lastName || "";
+           document.getElementById("email").value = user.email || "";
+           document.getElementById("birthDate").value = user.birthDate || "";
+           document.getElementById("phone").value = user.phone || "";
+           document.getElementById("address").value = user.address || "";
+           document.getElementById("medicalHistory").value = user.medicalHistory || "";
+           document.getElementById("insuranceProvider").value = user.insuranceProvider || "";
+           if (user.profilePicture) document.getElementById("profileImage").src = user.profilePicture;
+       } catch (err) {
+           console.error(err);
+           alert("Failed to load user data.");
+       }
+   });
+
+   document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
+       e.preventDefault();
+       const userId = getUserIdFromUrl() || 1;
+       const data = {
+           username: document.getElementById("username").value,
+           firstName: document.getElementById("firstName").value,
+           lastName: document.getElementById("lastName").value,
+           email: document.getElementById("email").value,
+           dateOfBirth: document.getElementById("birthDate").value,
+           phoneNumber: document.getElementById("phone").value,
+           address: document.getElementById("address").value,
+           medicalHistory: document.getElementById("medicalHistory").value,
+           insuranceProvider: document.getElementById("insuranceProvider").value
+       };
+       try {
+           const res = await fetch(`/api/persons/${userId}`, {
+               method: "PUT",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify(data)
+           });
+           if (!res.ok) {
+               const err = await res.text();
+               throw new Error(err);
+           }
+           alert("Profile updated successfully!");
+           window.location.href = `/user/profile.html?id=${userId}`;
+       } catch (err) {
+           console.error(err);
+           alert("Failed to update profile: " + err.message);
+       }
+   });
+     // Load header/footer first, then user data
+    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('footer-placeholder', '/components/footer.html');
 </script>
 
 </body>
