@@ -135,6 +135,43 @@
                 alert('Unable to load appointment details.');
             });
     });
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) throw new Error("Not authenticated");
+        const data = await res.json();
+
+        const userRole = data.roleName; // "ADMIN", "DOCTOR", "PATIENT"
+        console.log("User:", data.id, userRole);
+
+        // Update dashboard link
+        const dashboardLink = document.querySelector('#header-placeholder a#dashboardLink');
+        if (dashboardLink) {
+          if (userRole === "ADMIN") dashboardLink.href = "/admin/dashboard.html";
+          else if (userRole === "DOCTOR") dashboardLink.href = "/doctor/dashboard.html";
+          else if (userRole === "PATIENT") dashboardLink.href = "/patient/dashboard.html";
+          else dashboardLink.href = "/";
+        }
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+        window.location.href = "/login";
+      }
+    }
+
+    async function loadHTML(id, url) {
+      try {
+        const res = await fetch(url);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+      } catch (err) {
+        console.error(`Failed to load ${url}`, err);
+      }
+    }
+
+    // Load header first, then update role links
+    loadHTML('header-placeholder', '/components/header.html').then(() => {
+      loadCurrentUser();
+    });
 
     // Load header/footer first, then user data
     loadHTML('header-placeholder', '/components/header.html');

@@ -108,5 +108,15 @@ public class PersonController {
                     .body(null);
         }
     }
+    @GetMapping("/role/3")
+    public ResponseEntity<List<Person>> getAllPersonsWithRole3() {
+        try {
+            List<Person> persons = personService.findPersonsByRole(3L);
+            return ResponseEntity.ok(persons);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 
 }
