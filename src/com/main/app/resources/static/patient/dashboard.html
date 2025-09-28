@@ -40,7 +40,7 @@
                 <th>Time</th>
                 <th>Doctor</th>
                 <th>Status</th>
-                <th>Action</th> <!-- Added Action column -->
+                <th>Action</th>
             </tr>
             </thead>
             <tbody></tbody>
@@ -62,13 +62,13 @@
             </table>
         </div>
         <div class="card">
-            <h3>Prescriptions & Test Results</h3>
+            <h3>Prescriptions</h3>
             <table id="prescriptionsTable">
                 <thead>
                 <tr>
                     <th>Date</th>
                     <th>Doctor</th>
-                    <th>Prescription</th>
+                    <th>Prescription Items</th>
                     <th>Test Results</th>
                 </tr>
                 </thead>
@@ -117,10 +117,30 @@
     let patientId = null;
     axios.defaults.withCredentials = true;
 
+    // ✅ FIXED: Load HTML + run scripts
     async function loadHTML(id, url) {
         const res = await fetch(url);
         const html = await res.text();
-        document.getElementById(id).innerHTML = html;
+        const container = document.getElementById(id);
+        container.innerHTML = html;
+
+        // Run setupHeader if header.html has it
+        if (typeof setupHeader === "function") {
+            setupHeader();
+        }
+
+        // Re-run inline <script> tags
+        const scripts = container.querySelectorAll("script");
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement("script");
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            document.body.appendChild(newScript);
+            document.body.removeChild(newScript);
+        });
     }
 
     async function getPersonName(personId) {
@@ -135,9 +155,7 @@
     async function loadAppointments() {
         const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
         const tbody = document.querySelector("#appointmentsTable tbody");
-        const presTable = document.querySelector("#prescriptionsTable tbody");
         tbody.innerHTML = "";
-        presTable.innerHTML = "";
 
         document.getElementById("appointmentCount").innerText = res.data.length;
 
@@ -150,17 +168,8 @@
                     <td>${a.startTime.substring(11,16)} - ${a.endTime.substring(11,16)}</td>
                     <td>${doctorName}</td>
                     <td>${a.status}</td>
+                    <td><a href="/appointment/appointment-detail.html?id=${a.id}">View</a></td>
                 </tr>`;
-
-            if (a.prescription || a.testResults) {
-                presTable.innerHTML += `
-                <tr>
-                    <td>${a.startTime.substring(0,10)}</td>
-                    <td>${doctorName}</td>
-                    <td>${a.prescription || '-'}</td>
-                    <td>${a.testResults || '-'}</td>
-                </tr>`;
-            }
         }
     }
 
@@ -177,6 +186,41 @@
             tbody.innerHTML += `<tr><td>${d.firstName} ${d.lastName}</td><td>${d.specialty}</td></tr>`;
             select.innerHTML += `<option value="${d.id}">${d.firstName} ${d.lastName} - ${d.specialty}</option>`;
         });
+    }
+
+    async function loadPrescriptions() {
+        const res = await axios.get(`/api/prescriptions/patient/${patientId}`);
+        const tbody = document.querySelector("#prescriptionsTable tbody");
+        tbody.innerHTML = "";
+
+        if (res.data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #aaa;">No prescriptions yet</td>
+                </tr>`;
+            return;
+        }
+
+        for (const p of res.data) {
+            const doctorName = await getPersonName(p.doctorId);
+
+            const itemsHtml = p.items && p.items.length > 0
+                ? p.items.map(i => `
+                    <div>
+                        <strong>${i.medicineName || "Medicine #" + i.medicineId}</strong>
+                        (${i.dose}, ${i.frequency}, ${i.duration})
+                    </div>
+                  `).join("")
+                : "-";
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.createdAt ? p.createdAt.substring(0,10) : "-"}</td>
+                    <td>${doctorName}</td>
+                    <td>${itemsHtml}</td>
+                    <td>-</td>
+                </tr>`;
+        }
     }
 
     document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
@@ -203,44 +247,10 @@
         document.getElementById("patientName").innerText =
             res.data.firstName + " " + res.data.lastName;
 
-        const welcomeTitle = document.getElementById("welcomeTitle");
-        if (welcomeTitle) welcomeTitle.innerText = `Welcome, ${res.data.firstName} ${res.data.lastName}`;
-
         await loadAppointments();
         await loadDoctors();
+        await loadPrescriptions();
     }
-    async function loadAppointments() {
-    const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
-    const tbody = document.querySelector("#appointmentsTable tbody");
-    const presTable = document.querySelector("#prescriptionsTable tbody");
-    tbody.innerHTML = "";
-    presTable.innerHTML = "";
-
-    document.getElementById("appointmentCount").innerText = res.data.length;
-
-    for (const a of res.data) {
-        const doctorName = await getPersonName(a.doctorId);
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${a.startTime.substring(0,10)}</td>
-                <td>${a.startTime.substring(11,16)} - ${a.endTime.substring(11,16)}</td>
-                <td>${doctorName}</td>
-                <td>${a.status}</td>
-                <td><a href="/appointment/appointment-detail.html?id=${a.id}">View</a></td>
-            </tr>`;
-
-        if (a.prescription || a.testResults) {
-            presTable.innerHTML += `
-            <tr>
-                <td>${a.startTime.substring(0,10)}</td>
-                <td>${doctorName}</td>
-                <td>${a.prescription || '-'}</td>
-                <td>${a.testResults || '-'}</td>
-            </tr>`;
-        }
-    }
-}
 
     // Load header/footer first, then user data
     loadHTML('header-placeholder', '/components/header.html').then(loadCurrentUser);

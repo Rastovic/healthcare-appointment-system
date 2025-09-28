@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Prescription</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .item-row {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 10px;
+          align-items: center;
+        }
+        .item-row select,
+        .item-row input {
+          flex: 1;
+          padding: 6px;
+        }
+        .item-row button {
+          background: red;
+          color: #fff;
+          border: none;
+          padding: 6px 10px;
+          cursor: pointer;
+          border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 <!-- Header -->
@@ -13,28 +34,37 @@
 <main class="container">
     <h2>Create Prescription</h2>
     <div class="form-container">
-        <!-- No action/method, we handle via JS -->
         <form id="prescriptionForm">
+            <!-- Patient -->
             <div class="form-group">
                 <label for="patientId">Select Patient</label>
                 <select id="patientId" name="patientId" required>
                     <option value="">Select a Patient</option>
                 </select>
             </div>
+
+            <!-- Prescription items -->
             <div class="form-group">
-                <label for="medications">Medications</label>
-                <textarea id="medications" name="medications" placeholder="E.g., Amoxicillin 500mg, 2x daily" required></textarea>
+                <label>Prescription Items</label>
+                <div id="items-container"></div>
+                <button type="button" class="submit-button" onclick="addItem()">+ Add Medicine</button>
             </div>
+
+            <!-- Instructions -->
             <div class="form-group">
-                <label for="instructions">Instructions</label>
-                <textarea id="instructions" name="instructions" placeholder="E.g., Take after meals, for 7 days"></textarea>
+                <label for="instructions">General Instructions</label>
+                <textarea id="instructions" name="instructions" placeholder="E.g., Take with water, after meals"></textarea>
             </div>
+
+            <!-- Pharmacy -->
             <div class="form-group">
                 <label for="pharmacyId">Send To Pharmacy</label>
                 <select id="pharmacyId" name="pharmacyId">
                     <option value="">Select a Pharmacy</option>
                 </select>
             </div>
+
+            <!-- Buttons -->
             <div class="button-container">
                 <button type="submit" class="submit-button">Send Prescription</button>
                 <button type="button" class="submit-button" onclick="redirectToDashboard(userRole)">Back to Dashboard</button>
@@ -49,101 +79,174 @@
 <script>
     let doctorId = null;
     let userRole = null;
+    let medicinesCache = [];
 
-    async function loadCurrentUser() {
-        try {
-            const res = await fetch("/api/auth/me");
-            if (!res.ok) throw new Error("Not authenticated");
-            const data = await res.json();
-            doctorId = data.id;
-            userRole = data.roleName;
-        } catch (err) {
-            console.error("Not logged in", err);
-            window.location.href = "/login";
-        }
-    }
-
+    // Load external HTML (header/footer)
     async function loadHTML(id, url) {
+      try {
         const res = await fetch(url);
+        if (!res.ok) throw new Error(`${url} not found`);
         document.getElementById(id).innerHTML = await res.text();
+      } catch (err) {
+        console.error("Failed to load component:", url, err);
+      }
     }
 
+    // Get logged-in user
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) throw new Error("Not authenticated");
+        const data = await res.json();
+        doctorId = data.id;
+        userRole = data.roleName;
+        console.log("Logged in as:", userRole, "ID:", doctorId);
+      } catch (err) {
+        console.error("Not logged in", err);
+        window.location.href = "/login";
+      }
+    }
+
+    // Dashboard redirect by role
     function redirectToDashboard(roleName) {
-        if (roleName === "ADMIN") window.location.href = "/admin/dashboard.html";
-        else if (roleName === "DOCTOR") window.location.href = "/doctor/dashboard.html";
-        else if (roleName === "PATIENT") window.location.href = "/patient/dashboard.html";
-        else window.location.href = "/";
+      if (roleName === "ADMIN") window.location.href = "/admin/dashboard.html";
+      else if (roleName === "DOCTOR") window.location.href = "/doctor/dashboard.html";
+      else if (roleName === "PATIENT") window.location.href = "/patient/dashboard.html";
+      else window.location.href = "/";
     }
 
-    // Initialize page
-    loadHTML('header-placeholder', '/components/header.html').then(async () => {
-        await loadCurrentUser();
+    // Load medicines
+    async function loadMedicines() {
+      try {
+        const res = await fetch("/api/medicines");
+        medicinesCache = await res.json();
+        console.log("Medicines loaded:", medicinesCache.length);
+      } catch (err) {
+        console.error("Error loading medicines:", err);
+      }
+    }
 
-        // Load patients (role 3 assumed to be PATIENT)
-        fetch('/api/persons/role/3')
-            .then(res => res.json())
-            .then(patients => {
-                const select = document.getElementById('patientId');
-                patients.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id;
-                    opt.textContent = `${p.firstName} ${p.lastName}`;
-                    select.appendChild(opt);
-                });
-            })
-            .catch(err => console.error("Error loading patients:", err));
+    // Add prescription item row
+    function addItem() {
+      const container = document.getElementById("items-container");
 
-        // Load pharmacies
-        fetch('/api/pharmacies')
-            .then(res => res.json())
-            .then(pharmacies => {
-                const select = document.getElementById('pharmacyId');
-                pharmacies.forEach(ph => {
-                    const opt = document.createElement('option');
-                    opt.value = ph.id;
-                    opt.textContent = ph.name;
-                    select.appendChild(opt);
-                });
-            })
-            .catch(err => console.error("Error loading pharmacies:", err));
+      const itemDiv = document.createElement("div");
+      itemDiv.classList.add("item-row");
+      itemDiv.innerHTML = `
+        <select name="medicineId" required>
+          <option value="">Select Medicine</option>
+        </select>
+        <input type="text" name="dose" placeholder="Dose (e.g., 1 tablet)" required />
+        <input type="text" name="frequency" placeholder="Frequency (e.g., 2x/day)" required />
+        <input type="text" name="duration" placeholder="Duration (e.g., 7 days)" required />
+        <button type="button" onclick="this.parentElement.remove()">❌</button>
+      `;
 
-        // Handle form submit
-        document.getElementById('prescriptionForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
+      container.appendChild(itemDiv);
 
-            const payload = {
-                patientId: parseInt(formData.get('patientId')),
-                doctorId: doctorId,
-                medications: formData.get('medications'),
-                instructions: formData.get('instructions'),
-                pharmacyId: formData.get('pharmacyId') ? parseInt(formData.get('pharmacyId')) : null
-            };
+      // populate dropdown with medicines
+      const select = itemDiv.querySelector("select");
+      medicinesCache.forEach(med => {
+        const opt = document.createElement("option");
+        opt.value = med.medicineId || med.id;
+        opt.textContent = med.medicineName || med.name;
+        select.appendChild(opt);
+      });
+    }
 
-            console.log("Submitting prescription:", payload);
+    // Page setup
+    async function initPage() {
+      await loadHTML('header-placeholder', '/components/header.html');
+      await loadCurrentUser();
+      await loadMedicines();
 
-            try {
-                const response = await fetch("/api/prescriptions", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    alert("Prescription sent successfully!");
-                    redirectToDashboard(userRole);
-                } else {
-                    const errText = await response.text();
-                    alert("Failed to create prescription: " + errText);
-                }
-            } catch (error) {
-                console.error("Error creating prescription:", error);
-                alert("An error occurred while creating the prescription.");
-            }
+      // Load patients (assuming roleId=3 is patients)
+      try {
+        const res = await fetch('/api/persons/role/3');
+        const patients = await res.json();
+        const select = document.getElementById('patientId');
+        patients.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = `${p.firstName} ${p.lastName}`;
+          select.appendChild(opt);
         });
-    });
+      } catch (err) {
+        console.error("Error loading patients:", err);
+      }
 
-    loadHTML('footer-placeholder', '/components/footer.html');
+      // Load pharmacies
+      try {
+        const res = await fetch('/api/pharmacies');
+        const pharmacies = await res.json();
+        const select = document.getElementById('pharmacyId');
+        pharmacies.forEach(ph => {
+          const opt = document.createElement("option");
+          opt.value = ph.id;
+          opt.textContent = ph.name;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error loading pharmacies:", err);
+      }
+
+      // Handle form submit
+      document.getElementById("prescriptionForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const patientId = parseInt(formData.get("patientId"));
+        const pharmacyId = formData.get("pharmacyId") ? parseInt(formData.get("pharmacyId")) : null;
+
+        // collect items
+        const items = Array.from(document.querySelectorAll("#items-container .item-row")).map(row => {
+          const select = row.querySelector('select[name="medicineId"]');
+          const selectedOption = select.options[select.selectedIndex];
+          return {
+            medicineId: parseInt(select.value),
+            medicineName: selectedOption ? selectedOption.textContent : null,
+            dose: row.querySelector('input[name="dose"]').value,
+            frequency: row.querySelector('input[name="frequency"]').value,
+            duration: row.querySelector('input[name="duration"]').value
+          };
+        });
+
+        const payload = {
+          patientId: patientId,
+          doctorId: doctorId,
+          instructions: formData.get("instructions"),
+          pharmacyId: pharmacyId,
+          items: items
+        };
+
+        console.log("Submitting prescription:", payload);
+
+        try {
+          const response = await fetch("/api/prescriptions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            alert("Prescription created successfully!");
+            redirectToDashboard(userRole);
+          } else {
+            const err = await response.text();
+            alert("Failed to create prescription: " + err);
+          }
+        } catch (error) {
+          console.error("Error creating prescription:", error);
+          alert("An error occurred while creating the prescription.");
+        }
+      });
+
+      // Load footer last
+      await loadHTML('footer-placeholder', '/components/footer.html');
+    }
+
+    // Run init on DOM load
+    document.addEventListener("DOMContentLoaded", initPage);
 </script>
 </body>
 </html>
