@@ -29,6 +29,7 @@ public class AppointmentDto {
     private Long doctorId; // Represents the doctor
     private String testResults;
     private String doctorNotes;
-    private String prescription;
+    @JsonSerialize
+    private Long prescriptionId;
 
 }

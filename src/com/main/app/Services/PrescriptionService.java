@@ -49,6 +49,16 @@ public class PrescriptionService {
 
         return PrescriptionMapper.toDTO(entity, items);
     }
+    public PrescriptionDTO getPrescriptionByAppointmentId(Long id) {
+
+        Prescription prescription = prescriptionRepository.findByAppointmentId(id);
+        if (prescription == null) {
+            return null;
+        }
+        List<PrescriptionItem> items = itemRepository.findByPrescriptionId(prescription.getId());
+
+        return PrescriptionMapper.toDTO(prescription, items);
+    }
 
     // Get all for a patient
     public List<PrescriptionDTO> getPrescriptionsByPatient(Long patientId) {

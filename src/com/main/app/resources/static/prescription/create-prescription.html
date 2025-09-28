@@ -36,7 +36,7 @@
     <div class="form-container">
         <form id="prescriptionForm">
             <!-- Patient -->
-            <div class="form-group">
+            <div class="form-group" id="patientGroup">
                 <label for="patientId">Select Patient</label>
                 <select id="patientId" name="patientId" required>
                     <option value="">Select a Patient</option>
@@ -100,14 +100,13 @@
         const data = await res.json();
         doctorId = data.id;
         userRole = data.roleName;
-        console.log("Logged in as:", userRole, "ID:", doctorId);
       } catch (err) {
         console.error("Not logged in", err);
         window.location.href = "/login";
       }
     }
 
-    // Dashboard redirect by role
+    // Dashboard redirect
     function redirectToDashboard(roleName) {
       if (roleName === "ADMIN") window.location.href = "/admin/dashboard.html";
       else if (roleName === "DOCTOR") window.location.href = "/doctor/dashboard.html";
@@ -120,7 +119,6 @@
       try {
         const res = await fetch("/api/medicines");
         medicinesCache = await res.json();
-        console.log("Medicines loaded:", medicinesCache.length);
       } catch (err) {
         console.error("Error loading medicines:", err);
       }
@@ -129,7 +127,6 @@
     // Add prescription item row
     function addItem() {
       const container = document.getElementById("items-container");
-
       const itemDiv = document.createElement("div");
       itemDiv.classList.add("item-row");
       itemDiv.innerHTML = `
@@ -141,7 +138,6 @@
         <input type="text" name="duration" placeholder="Duration (e.g., 7 days)" required />
         <button type="button" onclick="this.parentElement.remove()">❌</button>
       `;
-
       container.appendChild(itemDiv);
 
       // populate dropdown with medicines
@@ -160,7 +156,11 @@
       await loadCurrentUser();
       await loadMedicines();
 
-      // Load patients (assuming roleId=3 is patients)
+      const params = new URLSearchParams(window.location.search);
+      const appointmentId = params.get("appointmentId");
+      const patientIdFromUrl = params.get("patientId");
+
+      // Load patients
       try {
         const res = await fetch('/api/persons/role/3');
         const patients = await res.json();
@@ -169,8 +169,25 @@
           const opt = document.createElement("option");
           opt.value = p.id;
           opt.textContent = `${p.firstName} ${p.lastName}`;
+          if (patientIdFromUrl && parseInt(patientIdFromUrl) === p.id) {
+            opt.selected = true;
+          }
           select.appendChild(opt);
         });
+
+        // Hide dropdown if locked by URL param
+        if (patientIdFromUrl) {
+          document.getElementById("patientGroup").style.display = "none";
+          const patientSelect = document.getElementById("patientId");
+          patientSelect.removeAttribute("required");
+
+          // Add hidden input so value still submits
+          const hidden = document.createElement("input");
+          hidden.type = "hidden";
+          hidden.name = "patientId";
+          hidden.value = patientIdFromUrl;
+          document.getElementById("prescriptionForm").appendChild(hidden);
+        }
       } catch (err) {
         console.error("Error loading patients:", err);
       }
@@ -193,9 +210,8 @@
       // Handle form submit
       document.getElementById("prescriptionForm").addEventListener("submit", async (event) => {
         event.preventDefault();
-
         const formData = new FormData(event.target);
-        const patientId = parseInt(formData.get("patientId"));
+        const patientId = patientIdFromUrl ? parseInt(patientIdFromUrl) : parseInt(formData.get("patientId"));
         const pharmacyId = formData.get("pharmacyId") ? parseInt(formData.get("pharmacyId")) : null;
 
         // collect items
@@ -212,14 +228,13 @@
         });
 
         const payload = {
+          appointmentId: appointmentId ? parseInt(appointmentId) : null,
           patientId: patientId,
           doctorId: doctorId,
           instructions: formData.get("instructions"),
           pharmacyId: pharmacyId,
           items: items
         };
-
-        console.log("Submitting prescription:", payload);
 
         try {
           const response = await fetch("/api/prescriptions", {
@@ -241,11 +256,9 @@
         }
       });
 
-      // Load footer last
       await loadHTML('footer-placeholder', '/components/footer.html');
     }
 
-    // Run init on DOM load
     document.addEventListener("DOMContentLoaded", initPage);
 </script>
 </body>

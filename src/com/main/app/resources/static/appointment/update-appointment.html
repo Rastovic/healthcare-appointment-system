@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Appointment</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: linear-gradient(135deg,#2f2f79,#80deea);
+          margin:0;
+          min-height:100vh;
+          display:flex;
+          flex-direction:column;
+        }
+        main.container {
+          flex:1;
+          max-width:1100px;
+          margin:40px auto;
+          background:rgba(0,0,0,0.4);
+          padding:20px;
+          border-radius:12px;
+          color:#fff;
+        }
+        h2 { text-align:center; color:#00d4ff; margin-bottom:20px; }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+        .section { background:rgba(255,255,255,0.05); padding:20px; border-radius:10px; }
+        .section h3 { color:#00d4ff; margin-top:0; }
+        .form-group { margin-bottom:15px; }
+        label { display:block; font-weight:600; margin-bottom:5px; color:#00d4ff; }
+        input, textarea, select {
+          width:100%; padding:8px; border-radius:6px; border:none;
+        }
+        .readonly p { margin:8px 0; }
+        .submit-button {
+          padding:10px 20px;
+          background:#00d4ff;
+          color:#1e1e2f;
+          border:none;
+          border-radius:8px;
+          font-weight:600;
+          cursor:pointer;
+        }
+        .submit-button:hover { background:#00bcd4; }
+        .prescription-box { background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; margin-top:20px; }
+        footer.futuristic-footer {
+          background:#1e1e2f; padding:15px; color:#fff; text-align:center;
+        }
+
+        /* Modal Styles */
+        .modal {
+          display:none;
+          position:fixed;
+          z-index:1000;
+          left:0; top:0;
+          width:100%; height:100%;
+          background:rgba(0,0,0,0.7);
+          justify-content:center;
+          align-items:center;
+        }
+        .modal-content {
+          background:#1e1e2f;
+          padding:20px;
+          border-radius:12px;
+          max-width:700px;
+          width:95%;
+          color:#fff;
+          box-shadow:0 0 20px rgba(0,0,0,0.5);
+        }
+        .close-btn {
+          float:right;
+          font-size:22px;
+          cursor:pointer;
+          color:#00d4ff;
+        }
+        .close-btn:hover { color:#00bcd4; }
+        .modal-footer {
+          text-align:right;
+          margin-top:20px;
+        }
+
+        table {
+          width:100%;
+          border-collapse:collapse;
+          margin-top:15px;
+        }
+        th, td {
+          border:1px solid rgba(255,255,255,0.2);
+          padding:8px;
+          text-align:left;
+        }
+        th {
+          background:rgba(0,212,255,0.2);
+          color:#00d4ff;
+        }
+    </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<main class="container">
+    <h2>Update Appointment</h2>
+    <div class="grid">
+        <!-- Left Column -->
+        <div class="section readonly">
+            <h3>Appointment Details</h3>
+            <p><strong>Title:</strong> <span id="viewTitle"></span></p>
+            <p><strong>Description:</strong> <span id="viewDescription"></span></p>
+            <p><strong>Date:</strong> <span id="viewDate"></span></p>
+            <p><strong>Time:</strong> <span id="viewTime"></span></p>
+            <p><strong>Location:</strong> <span id="viewLocation"></span></p>
+            <p><strong>Doctor ID:</strong> <span id="viewDoctorId"></span></p>
+            <p><strong>Person ID:</strong> <span id="viewPersonId"></span></p>
+        </div>
+
+        <!-- Right Column -->
+        <div class="section">
+            <h3>Edit Fields</h3>
+            <form id="updateForm">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <input type="text" id="status" name="status">
+                </div>
+                <div class="form-group">
+                    <label for="doctorNotes">Doctor Notes</label>
+                    <textarea id="doctorNotes" name="doctorNotes"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="testResults">Test Results</label>
+                    <textarea id="testResults" name="testResults"></textarea>
+                </div>
+
+                <!-- Prescription Section -->
+                <div class="prescription-box">
+                    <h3>Prescription</h3>
+                    <div id="prescriptionContent">Loading...</div>
+                    <button type="button" class="submit-button" id="addPrescriptionBtn" style="display:none;">+ Create Prescription</button>
+                </div>
+
+                <div style="margin-top:20px;text-align:center;">
+                    <button type="submit" class="submit-button">💾 Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<!-- Prescription Modal -->
+<div id="prescriptionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h3 style="color:#00d4ff;">Prescription Details</h3>
+        <div id="modalPrescriptionContent">Loading...</div>
+        <div class="modal-footer">
+            <button class="submit-button" id="printPrescriptionBtn">🖨 Print</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let appointmentId = null;
+    let prescriptionId = null;
+
+    async function loadHTML(id,url){
+      try{
+        const res=await fetch(url);
+        document.getElementById(id).innerHTML=await res.text();
+      }catch(e){console.error("Load failed",url,e);}
+    }
+
+    async function initPage(){
+      const params=new URLSearchParams(window.location.search);
+      appointmentId=params.get("id");
+      if(!appointmentId){alert("No appointment ID");return;}
+
+      await loadHTML('header-placeholder','/components/header.html');
+      await loadHTML('footer-placeholder','/components/footer.html');
+
+      // Load appointment
+      const res=await fetch(`/api/appointments/${appointmentId}`);
+      const app=await res.json();
+
+      // Fill read-only
+      document.getElementById("viewTitle").textContent=app.title||"-";
+      document.getElementById("viewDescription").textContent=app.description||"-";
+      if(app.startTime){
+        const start=new Date(app.startTime);
+        document.getElementById("viewDate").textContent=start.toLocaleDateString();
+        document.getElementById("viewTime").textContent=start.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      }
+      document.getElementById("viewLocation").textContent=app.location||"-";
+      document.getElementById("viewDoctorId").textContent=app.doctorId||"-";
+      document.getElementById("viewPersonId").textContent=app.personId||"-";
+
+      // Fill editable
+      document.getElementById("status").value=app.status||"";
+      document.getElementById("doctorNotes").value=app.doctorNotes||"";
+      document.getElementById("testResults").value=app.testResults||"";
+      prescriptionId=app.prescriptionId;
+
+      // Prescription
+      const presDiv=document.getElementById("prescriptionContent");
+      if(prescriptionId){
+        const presRes=await fetch(`/api/prescriptions/${prescriptionId}`);
+        if(presRes.ok){
+          const pres=await presRes.json();
+          presDiv.innerHTML=`
+            <p><strong>Status:</strong> ${pres.status||"-"}</p>
+            <p><a href="#" id="viewPrescriptionLink" style="color:#00d4ff;">View Prescription</a></p>
+          `;
+
+          // Modal logic
+          document.getElementById("viewPrescriptionLink").onclick=(e)=>{
+            e.preventDefault();
+
+            // Items table
+            let itemsHTML = "";
+            if(pres.items && pres.items.length){
+              itemsHTML = `
+                <h4 style="margin-top:15px;color:#00d4ff;">Medicines</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th>Dose</th>
+                      <th>Frequency</th>
+                      <th>Duration</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${pres.items.map(it=>`
+                      <tr>
+                        <td>${it.medicineName||"-"}</td>
+                        <td>${it.dose||"-"}</td>
+                        <td>${it.frequency||"-"}</td>
+                        <td>${it.duration||"-"}</td>
+                        <td>${it.notes||"-"}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              `;
+            }
+
+            document.getElementById("modalPrescriptionContent").innerHTML=`
+              <p><strong>Status:</strong> ${pres.status||"-"}</p>
+              <p><strong>Created At:</strong> ${pres.createdAt? new Date(pres.createdAt).toLocaleString():"-"}</p>
+              <p><strong>Notes:</strong> ${pres.notes||"-"}</p>
+              ${itemsHTML}
+            `;
+            document.getElementById("prescriptionModal").style.display="flex";
+          };
+
+          // Print button
+          document.getElementById("printPrescriptionBtn").onclick=()=>{
+            const content=document.getElementById("modalPrescriptionContent").innerHTML;
+            const win=window.open("","PrintWindow","width=700,height=700");
+            win.document.write(`
+              <html>
+                <head>
+                  <title>Prescription</title>
+                  <style>
+                    body { font-family: Arial, sans-serif; padding:20px; }
+                    h2 { text-align:center; color:#333; }
+                    table { width:100%; border-collapse:collapse; margin-top:15px; }
+                    th, td { border:1px solid #333; padding:8px; text-align:left; }
+                    th { background:#f0f0f0; }
+                  </style>
+                </head>
+                <body>
+                  <h2>Prescription</h2>
+                  ${content}
+                </body>
+              </html>
+            `);
+            win.document.close();
+            win.print();
+          };
+        }else presDiv.textContent="Prescription data not found.";
+      }else{
+        presDiv.textContent="No prescription attached.";
+        document.getElementById("addPrescriptionBtn").style.display="inline-block";
+        document.getElementById("addPrescriptionBtn").onclick=()=>{
+          window.location.href=`/prescription/create-prescription.html?appointmentId=${appointmentId}&patientId=${app.personId}`;
+        };
+      }
+
+      // Save changes
+      document.getElementById("updateForm").addEventListener("submit",async e=>{
+        e.preventDefault();
+        const payload={
+          status:document.getElementById("status").value,
+          doctorNotes:document.getElementById("doctorNotes").value,
+          testResults:document.getElementById("testResults").value,
+          prescriptionId:prescriptionId
+        };
+        try{
+          const resp=await fetch(`/api/appointments/${appointmentId}`,{
+            method:"PUT",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(payload)
+          });
+          if(resp.ok){
+            alert("Appointment updated!");
+            window.location.href=`/appointment/appointment-details.html?id=${appointmentId}`;
+          }else alert("Failed to update");
+        }catch(err){console.error(err);alert("Error updating");}
+      });
+
+      // Close modal
+      document.getElementById("closeModal").onclick=()=>{
+        document.getElementById("prescriptionModal").style.display="none";
+      };
+      window.onclick=(e)=>{
+        if(e.target==document.getElementById("prescriptionModal")){
+          document.getElementById("prescriptionModal").style.display="none";
+        }
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded",initPage);
+</script>
+</body>
+</html>

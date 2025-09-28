@@ -56,8 +56,8 @@ public class Appointment {
     @Column(name = "doctor_notes")
     private String doctorNotes;
 
-    @Column(name = "prescription")
-    private String prescription;
+    @Column(name = "prescriptionId")
+    private Long prescriptionId;
 
     @PrePersist
     protected void onCreate() {

@@ -1,8 +1,10 @@
 package com.main.app.Services;
 
 import com.main.app.Dto.AppointmentDto;
+import com.main.app.Dto.PrescriptionDTO;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Person;
+import com.main.app.Model.Prescription;
 import com.main.app.Repositories.AppointmentRepository;
 import com.main.app.Repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     private AppointmentRepository appointmentRepository;
 
     @Autowired
+    private PrescriptionService prescriptionService;
+
+    @Autowired
     private PersonRepository personRepository;
 
     @Override
@@ -35,9 +40,24 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentDto getAppointmentById(Long id) {
+        // Get the appointment safely
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(id);
-        return appointmentOptional.map(this::convertEntityToDto).orElse(null);
+        if (appointmentOptional.isEmpty()) {
+            return null; // or throw a custom exception if you prefer
+        }
+
+        Appointment appointment = appointmentOptional.get();
+
+        // Get prescription and set it if found
+        PrescriptionDTO prescription = prescriptionService.getPrescriptionByAppointmentId(id);
+        if (prescription != null) {
+            appointment.setPrescriptionId(prescription.getId());
+        }
+
+        // Convert to DTO
+        return convertEntityToDto(appointment);
     }
+
 
     @Override
     public List<AppointmentDto> getAllAppointments() {
@@ -47,7 +67,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId) {
-        List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
+        List<Appointment> appointments = appointmentRepository.findByDoctorIdAndStartTimeAfter(doctorId, LocalDateTime.now());
         return appointments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
     }
 
@@ -72,7 +92,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointment.setLocation(appointmentDto.getLocation());
             appointment.setTestResults(appointmentDto.getTestResults());
             appointment.setDoctorNotes(appointmentDto.getDoctorNotes());
-            appointment.setPrescription(appointmentDto.getPrescription());
+            appointment.setPrescriptionId(appointmentDto.getPrescriptionId());
 
             // Update relationships
             if (appointmentDto.getPersonId() != null) {
@@ -119,7 +139,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointmentDto.setTestResults(appointment.getTestResults());
         appointmentDto.setDoctorNotes(appointment.getDoctorNotes());
-        appointmentDto.setPrescription(appointment.getPrescription());
+        appointmentDto.setPrescriptionId(appointment.getPrescriptionId());
         return appointmentDto;
     }
 
@@ -134,7 +154,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setLocation(appointmentDto.getLocation());
         appointment.setTestResults(appointmentDto.getTestResults());
         appointment.setDoctorNotes(appointmentDto.getDoctorNotes());
-        appointment.setPrescription(appointmentDto.getPrescription());
+        appointment.setPrescriptionId(appointmentDto.getPrescriptionId());
 
         if (appointmentDto.getPersonId() != null) {
             Person patient = personRepository.findById(appointmentDto.getPersonId())

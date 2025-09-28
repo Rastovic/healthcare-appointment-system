@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
-    List<Appointment> findByDoctorId(Long doctorId);
+    List<Appointment> findByDoctorIdAndStartTimeAfter(Long doctorId, LocalDateTime now);
     List<Appointment> findByPersonId(Long personId);  // Patient’s appointments
     List<Appointment> findByPersonIdAndStartTimeBefore(Long personId, LocalDateTime now);
     List<Appointment> findByPersonIdAndStartTimeAfter(Long personId, LocalDateTime now);
