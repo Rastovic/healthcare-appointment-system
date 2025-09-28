@@ -67,9 +67,20 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentDto> getAppointmentsByDoctorId(Long doctorId) {
-        List<Appointment> appointments = appointmentRepository.findByDoctorIdAndStartTimeAfter(doctorId, LocalDateTime.now());
-        return appointments.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+        List<Appointment> appointments = appointmentRepository
+                .findByDoctorIdAndStartTimeAfter(doctorId, LocalDateTime.now());
+
+        return appointments.stream().map(appointment -> {
+            // Attach prescription
+            PrescriptionDTO prescription = prescriptionService.getPrescriptionByAppointmentId(appointment.getId());
+            if (prescription != null) {
+                appointment.setPrescriptionId(prescription.getId());
+            }
+
+            return convertEntityToDto(appointment);
+        }).collect(Collectors.toList());
     }
+
 
     @Override
     public List<AppointmentDto> getAppointmentsByPatientId(Long patientId) {
@@ -83,33 +94,57 @@ public class AppointmentServiceImpl implements AppointmentService {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(id);
         if (appointmentOptional.isPresent()) {
             Appointment appointment = appointmentOptional.get();
-            // Update fields from DTO
-            appointment.setTitle(appointmentDto.getTitle());
-            appointment.setDescription(appointmentDto.getDescription());
-            appointment.setStartTime(appointmentDto.getStartTime());
-            appointment.setEndTime(appointmentDto.getEndTime());
-            appointment.setStatus(appointmentDto.getStatus());
-            appointment.setLocation(appointmentDto.getLocation());
-            appointment.setTestResults(appointmentDto.getTestResults());
-            appointment.setDoctorNotes(appointmentDto.getDoctorNotes());
-            appointment.setPrescriptionId(appointmentDto.getPrescriptionId());
 
-            // Update relationships
+            // Update only non-null fields from DTO
+            if (appointmentDto.getTitle() != null) {
+                appointment.setTitle(appointmentDto.getTitle());
+            }
+            if (appointmentDto.getDescription() != null) {
+                appointment.setDescription(appointmentDto.getDescription());
+            }
+            if (appointmentDto.getStartTime() != null) {
+                appointment.setStartTime(appointmentDto.getStartTime());
+            }
+            if (appointmentDto.getEndTime() != null) {
+                appointment.setEndTime(appointmentDto.getEndTime());
+            }
+            if (appointmentDto.getStatus() != null) {
+                appointment.setStatus(appointmentDto.getStatus());
+            }
+            if (appointmentDto.getLocation() != null) {
+                appointment.setLocation(appointmentDto.getLocation());
+            }
+            if (appointmentDto.getTestResults() != null) {
+                appointment.setTestResults(appointmentDto.getTestResults());
+            }
+            if (appointmentDto.getDoctorNotes() != null) {
+                appointment.setDoctorNotes(appointmentDto.getDoctorNotes());
+            }
+            if (appointmentDto.getPrescriptionId() != null) {
+                appointment.setPrescriptionId(appointmentDto.getPrescriptionId());
+            }
+
+            // Update relationships only if IDs are provided
             if (appointmentDto.getPersonId() != null) {
                 Person patient = personRepository.findById(appointmentDto.getPersonId())
-                        .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + appointmentDto.getPersonId()));
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Patient not found with id: " + appointmentDto.getPersonId()));
                 appointment.setPersonId(patient.getId());
             }
             if (appointmentDto.getDoctorId() != null) {
                 Person doctor = personRepository.findById(appointmentDto.getDoctorId())
-                        .orElseThrow(() -> new EntityNotFoundException("Doctor not found with id: " + appointmentDto.getDoctorId()));
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Doctor not found with id: " + appointmentDto.getDoctorId()));
                 appointment.setDoctorId(doctor.getDoctorId());
             }
 
+            // Always update timestamp
             appointment.setUpdatedAt(LocalDateTime.now());
+
             Appointment updatedAppointment = appointmentRepository.save(appointment);
             return convertEntityToDto(updatedAppointment);
         }
+
         return null; // Or throw an exception
     }
 
