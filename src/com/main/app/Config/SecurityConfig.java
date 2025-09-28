@@ -74,10 +74,11 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new MD5PasswordEncoder();
     }
 
-     @Bean
+
+    @Bean
      public UserDetailsService userDetailsService(PersonService personService) {
          return username -> {
              Person person = personService.findByUsername(username);
