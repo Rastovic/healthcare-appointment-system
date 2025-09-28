@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         html, body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #2f2f79 0%, #80deea 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          background: linear-gradient(135deg, #2f2f79 0%, #80deea 100%);
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
         }
         body { -ms-overflow-style: none; scrollbar-width: none; }
         body::-webkit-scrollbar { display: none; }
@@ -36,15 +36,15 @@
         .details-container td { color: #ccc; }
 
         .back-button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #00d4ff;
-            color: #1e1e2f;
-            border-radius: 6px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background-color 0.3s, transform 0.2s;
-            text-align: center;
+          display: inline-block;
+          padding: 10px 15px;
+          background-color: #00d4ff;
+          color: #1e1e2f;
+          border-radius: 6px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: background-color 0.3s, transform 0.2s;
+          text-align: center;
         }
         .back-button:hover { background-color: #00bcd4; transform: translateY(-2px); }
         .back-container { text-align: center; margin-top: 20px; }
@@ -52,12 +52,45 @@
         footer.futuristic-footer { background-color: #1e1e2f; padding: 15px 0; color: #fff; text-align: center; }
         footer .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        @media (max-width: 600px) {
-            .details-container { padding: 15px; }
-            .details-container th, .details-container td { font-size: 14px; }
-            .header-inner { padding: 0 20px; }
-            .header-right { gap: 10px; }
+        /* Modal */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0; top: 0;
+          width: 100%; height: 100%;
+          background: rgba(0,0,0,0.7);
+          justify-content: center;
+          align-items: center;
         }
+        .modal-content {
+          background: #1e1e2f;
+          padding: 25px;
+          border-radius: 14px;
+          max-width: 750px;
+          width: 95%;
+          color: #fff;
+          box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .close-btn { float: right; font-size: 22px; cursor: pointer; color: #00d4ff; }
+        .close-btn:hover { color: #00bcd4; }
+        .modal-footer { text-align: right; margin-top: 20px; }
+        .btn {
+          padding: 6px 12px;
+          background: #00d4ff;
+          color: #1e1e2f;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 0.9rem;
+        }
+        .btn:hover { background: #00bcd4; }
+
+        .prescription-items { margin-top: 15px; }
+        .prescription-items table { width: 100%; border-collapse: collapse; }
+        .prescription-items th, .prescription-items td { border: 1px solid #444; padding: 8px; text-align: left; }
+        .prescription-items th { background: rgba(0,212,255,0.2); color: #00d4ff; }
     </style>
 </head>
 <body>
@@ -78,102 +111,169 @@
             <tr><th>Doctor ID</th><td id="doctorId"></td></tr>
             <tr><th>Test Results</th><td id="testResults"></td></tr>
             <tr><th>Doctor Notes</th><td id="doctorNotes"></td></tr>
-            <tr><th>Prescription</th><td id="prescription"></td></tr>
+            <tr><th>Prescription</th>
+                <td id="prescription">
+                    <!-- dynamically filled -->
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
     <div class="back-container">
-        <div class="back-container">
-            <a href="/appointment/previous-appointments.html" class="back-button">← View Previous Appointments</a>
-            <a href="/appointment/upcoming-appointments.html" class="back-button">View Upcoming Appointments →</a>
-            <a id="updateAppointmentBtn" href="#" class="back-button" style="display:none;">✎ Update Appointment</a>
-        </div>
-
+        <a href="/appointment/previous-appointments.html" class="back-button">← View Previous Appointments</a>
+        <a href="/appointment/upcoming-appointments.html" class="back-button">View Upcoming Appointments →</a>
+        <a id="updateAppointmentBtn" href="#" class="back-button" style="display:none;">✎ Update Appointment</a>
     </div>
-
 </main>
 
 <div id="footer-placeholder"></div>
 
+<!-- Prescription Modal -->
+<div id="prescriptionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3>Prescription Details</h3>
+        <div id="prescriptionContent">Loading...</div>
+        <div class="modal-footer">
+            <button class="btn" onclick="printPrescription()">Print</button>
+        </div>
+    </div>
+</div>
+
 <script>
-
-
-    async function loadHTML(id, url) {
-        const res = await fetch(url);
-        const html = await res.text();
-        document.getElementById(id).innerHTML = html;
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        const appointmentId = params.get('id');
-
-        if (!appointmentId) {
-            alert('No appointment ID provided');
-            return;
-        }
-
-        fetch(`/api/appointments/${appointmentId}`)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch appointment');
-                return res.json();
-            })
-            .then(appointment => {
-                document.getElementById('title').textContent = appointment.title || '';
-                document.getElementById('description').textContent = appointment.description || '';
-                if(appointment.startTime){
-                    const start = new Date(appointment.startTime);
-                    document.getElementById('date').textContent = start.toLocaleDateString();
-                    document.getElementById('time').textContent = start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                }
-                document.getElementById('status').textContent = appointment.status || '';
-                document.getElementById('location').textContent = appointment.location || '';
-                document.getElementById('personId').textContent = appointment.personId || '';
-                document.getElementById('doctorId').textContent = appointment.doctorId || '';
-                document.getElementById('testResults').textContent = appointment.testResults || '';
-                document.getElementById('doctorNotes').textContent = appointment.doctorNotes || '';
-                document.getElementById('prescription').textContent = appointment.prescription || '';
-            })
-            .catch(error => {
-                console.error('Error fetching appointment:', error);
-                alert('Unable to load appointment details.');
-            });
-    });
-    async function loadCurrentUser() {
-  try {
-    const res = await fetch("/api/auth/me");
-    if (!res.ok) throw new Error("Not authenticated");
-    const data = await res.json();
-
-    const userRole = data.roleName; // "ADMIN", "DOCTOR", "PATIENT"
-    console.log("User:", data.id, userRole);
-
-    // Update dashboard link
-    const dashboardLink = document.querySelector('#header-placeholder a#dashboardLink');
-    if (dashboardLink) {
-      if (userRole === "ADMIN") dashboardLink.href = "/admin/dashboard.html";
-      else if (userRole === "DOCTOR") dashboardLink.href = "/doctor/dashboard.html";
-      else if (userRole === "PATIENT") dashboardLink.href = "/patient/dashboard.html";
-      else dashboardLink.href = "/";
-    }
-
-    // ✅ Show update button if doctor
-    if (userRole === "DOCTOR") {
       const params = new URLSearchParams(window.location.search);
-      const appointmentId = params.get("id");
-      const updateBtn = document.getElementById("updateAppointmentBtn");
-      if (updateBtn && appointmentId) {
-        updateBtn.style.display = "inline-block";
-        updateBtn.href = `/appointment/update-appointment.html?id=${appointmentId}`;
+      const appointmentId = params.get('id');
+
+      if (!appointmentId) {
+        alert('No appointment ID provided');
+        return;
+      }
+
+      fetch(`/api/appointments/${appointmentId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch appointment');
+          return res.json();
+        })
+        .then(appointment => {
+          document.getElementById('title').textContent = appointment.title || '';
+          document.getElementById('description').textContent = appointment.description || '';
+          if (appointment.startTime) {
+            const start = new Date(appointment.startTime);
+            document.getElementById('date').textContent = start.toLocaleDateString();
+            document.getElementById('time').textContent = start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          }
+          document.getElementById('status').textContent = appointment.status || '';
+          document.getElementById('location').textContent = appointment.location || '';
+          document.getElementById('personId').textContent = appointment.personId || '';
+          document.getElementById('doctorId').textContent = appointment.doctorId || '';
+          document.getElementById('testResults').textContent = appointment.testResults || '';
+          document.getElementById('doctorNotes').textContent = appointment.doctorNotes || '';
+
+          // Prescription
+          const prescriptionCell = document.getElementById('prescription');
+          if (appointment.prescriptionId) {
+            prescriptionCell.innerHTML = `<button class="btn" onclick="viewPrescription(${appointment.prescriptionId})">View Prescription</button>`;
+          } else {
+            prescriptionCell.textContent = "—";
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching appointment:', error);
+          alert('Unable to load appointment details.');
+        });
+    });
+
+    async function viewPrescription(id) {
+      const modal = document.getElementById("prescriptionModal");
+      const content = document.getElementById("prescriptionContent");
+      content.innerHTML = "Loading...";
+
+      try {
+        const res = await fetch(`/api/prescriptions/${id}`);
+        if (!res.ok) throw new Error("Failed to load prescription");
+        const prescription = await res.json();
+
+        content.innerHTML = `
+          <p><strong>Status:</strong> ${prescription.status || ""}</p>
+          <p><strong>Issued At:</strong> ${prescription.issuedAt ? new Date(prescription.issuedAt).toLocaleString() : "—"}</p>
+          <p><strong>Signed By:</strong> ${prescription.signedBy || "—"}</p>
+          <h4>Items</h4>
+          <div class="prescription-items">
+            <table>
+              <thead>
+                <tr>
+                  <th>Medicine</th>
+                  <th>Dose</th>
+                  <th>Frequency</th>
+                  <th>Duration</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${prescription.items && prescription.items.length > 0
+                  ? prescription.items.map(item => `
+                    <tr>
+                      <td>${item.medicineName || ""}</td>
+                      <td>${item.dose || ""}</td>
+                      <td>${item.frequency || ""}</td>
+                      <td>${item.duration || ""}</td>
+                      <td>${item.notes || ""}</td>
+                    </tr>`).join("")
+                  : "<tr><td colspan='5'>No items</td></tr>"}
+              </tbody>
+            </table>
+          </div>
+        `;
+        modal.style.display = "flex";
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = "Error loading prescription.";
       }
     }
 
-  } catch (err) {
-    console.error("Error fetching current user:", err);
-    window.location.href = "/login";
-  }
-}
+    function closeModal() {
+      document.getElementById("prescriptionModal").style.display = "none";
+    }
 
+    function printPrescription() {
+      const printContents = document.getElementById("prescriptionContent").innerHTML;
+      const win = window.open("", "", "height=600,width=800");
+      win.document.write("<html><head><title>Prescription</title></head><body>");
+      win.document.write(printContents);
+      win.document.write("</body></html>");
+      win.document.close();
+      win.print();
+    }
+
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) throw new Error("Not authenticated");
+        const data = await res.json();
+        const userRole = data.roleName;
+        const dashboardLink = document.querySelector('#header-placeholder a#dashboardLink');
+        if (dashboardLink) {
+          if (userRole === "ADMIN") dashboardLink.href = "/admin/dashboard.html";
+          else if (userRole === "DOCTOR") dashboardLink.href = "/doctor/dashboard.html";
+          else if (userRole === "PATIENT") dashboardLink.href = "/patient/dashboard.html";
+          else dashboardLink.href = "/";
+        }
+
+        if (userRole === "DOCTOR") {
+          const params = new URLSearchParams(window.location.search);
+          const appointmentId = params.get("id");
+          const updateBtn = document.getElementById("updateAppointmentBtn");
+          if (updateBtn && appointmentId) {
+            updateBtn.style.display = "inline-block";
+            updateBtn.href = `/appointment/update-appointment.html?id=${appointmentId}`;
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+        window.location.href = "/login";
+      }
+    }
 
     async function loadHTML(id, url) {
       try {
@@ -185,13 +285,7 @@
       }
     }
 
-    // Load header first, then update role links
-    loadHTML('header-placeholder', '/components/header.html').then(() => {
-      loadCurrentUser();
-    });
-
-    // Load header/footer first, then user data
-    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('header-placeholder', '/components/header.html').then(() => loadCurrentUser());
     loadHTML('footer-placeholder', '/components/footer.html');
 </script>
 </body>

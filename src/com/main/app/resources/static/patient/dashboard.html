@@ -6,6 +6,50 @@
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Modal */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0; top: 0;
+          width: 100%; height: 100%;
+          background: rgba(0,0,0,0.7);
+          justify-content: center;
+          align-items: center;
+        }
+        .modal-content {
+          background: #1e1e2f;
+          padding: 25px;
+          border-radius: 14px;
+          max-width: 750px;
+          width: 95%;
+          color: #fff;
+          box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .close-btn { float: right; font-size: 22px; cursor: pointer; color: #00d4ff; }
+        .close-btn:hover { color: #00bcd4; }
+        .modal-footer { text-align: right; margin-top: 20px; }
+        .btn {
+          padding: 6px 12px;
+          background: #00d4ff;
+          color: #1e1e2f;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          font-size: 0.9rem;
+        }
+        .btn:hover { background: #00bcd4; }
+        .prescription-items { margin-top: 15px; }
+        .prescription-items table { width: 100%; border-collapse: collapse; }
+        .prescription-items th, .prescription-items td {
+          border: 1px solid #444;
+          padding: 8px;
+          text-align: left;
+        }
+        .prescription-items th { background: rgba(0,212,255,0.2); color: #00d4ff; }
+    </style>
 </head>
 <body>
 <!-- Header Component -->
@@ -70,6 +114,7 @@
                     <th>Doctor</th>
                     <th>Prescription Items</th>
                     <th>Test Results</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody></tbody>
@@ -113,146 +158,188 @@
 <!-- Footer Component -->
 <div id="footer-placeholder"></div>
 
+<!-- Prescription Modal -->
+<div id="prescriptionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3>Prescription Details</h3>
+        <div id="prescriptionContent">Loading...</div>
+        <div class="modal-footer">
+            <button class="btn" onclick="printPrescription()">Print</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let patientId = null;
     axios.defaults.withCredentials = true;
 
-    // ✅ FIXED: Load HTML + run scripts
     async function loadHTML(id, url) {
-        const res = await fetch(url);
-        const html = await res.text();
-        const container = document.getElementById(id);
-        container.innerHTML = html;
+      const res = await fetch(url);
+      const html = await res.text();
+      const container = document.getElementById(id);
+      container.innerHTML = html;
 
-        // Run setupHeader if header.html has it
-        if (typeof setupHeader === "function") {
-            setupHeader();
-        }
+      if (typeof setupHeader === "function") setupHeader();
 
-        // Re-run inline <script> tags
-        const scripts = container.querySelectorAll("script");
-        scripts.forEach(oldScript => {
-            const newScript = document.createElement("script");
-            if (oldScript.src) {
-                newScript.src = oldScript.src;
-            } else {
-                newScript.textContent = oldScript.textContent;
-            }
-            document.body.appendChild(newScript);
-            document.body.removeChild(newScript);
-        });
+      const scripts = container.querySelectorAll("script");
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement("script");
+        if (oldScript.src) newScript.src = oldScript.src;
+        else newScript.textContent = oldScript.textContent;
+        document.body.appendChild(newScript);
+        document.body.removeChild(newScript);
+      });
     }
 
     async function getPersonName(personId) {
-        try {
-            const res = await axios.get(`/api/persons/${personId}`);
-            return res.data.firstName + " " + res.data.lastName;
-        } catch {
-            return "Unknown";
-        }
+      try {
+        const res = await axios.get(`/api/persons/${personId}`);
+        return res.data.firstName + " " + res.data.lastName;
+      } catch {
+        return "Unknown";
+      }
     }
 
     async function loadAppointments() {
-        const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
-        const tbody = document.querySelector("#appointmentsTable tbody");
-        tbody.innerHTML = "";
+      const res = await axios.get(`/api/appointments/patient/${patientId}/upcoming`);
+      const tbody = document.querySelector("#appointmentsTable tbody");
+      tbody.innerHTML = "";
+      document.getElementById("appointmentCount").innerText = res.data.length;
 
-        document.getElementById("appointmentCount").innerText = res.data.length;
-
-        for (const a of res.data) {
-            const doctorName = await getPersonName(a.doctorId);
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${a.startTime.substring(0,10)}</td>
-                    <td>${a.startTime.substring(11,16)} - ${a.endTime.substring(11,16)}</td>
-                    <td>${doctorName}</td>
-                    <td>${a.status}</td>
-                    <td><a href="/appointment/appointment-detail.html?id=${a.id}">View</a></td>
-                </tr>`;
-        }
+      for (const a of res.data) {
+        const doctorName = await getPersonName(a.doctorId);
+        tbody.innerHTML += `
+          <tr>
+            <td>${a.startTime.substring(0,10)}</td>
+            <td>${a.startTime.substring(11,16)} - ${a.endTime.substring(11,16)}</td>
+            <td>${doctorName}</td>
+            <td>${a.status}</td>
+            <td><a href="/appointment/appointment-detail.html?id=${a.id}">View</a></td>
+          </tr>`;
+      }
     }
 
     async function loadDoctors() {
-        const res = await axios.get("/api/persons/doctors");
-        const tbody = document.querySelector("#doctorsTable tbody");
-        const select = document.querySelector("#doctor");
-        tbody.innerHTML = "";
-        select.innerHTML = "";
+      const res = await axios.get("/api/persons/doctors");
+      const tbody = document.querySelector("#doctorsTable tbody");
+      const select = document.querySelector("#doctor");
+      tbody.innerHTML = "";
+      select.innerHTML = "";
+      document.getElementById("doctorCount").innerText = res.data.length;
 
-        document.getElementById("doctorCount").innerText = res.data.length;
-
-        res.data.forEach(d => {
-            tbody.innerHTML += `<tr><td>${d.firstName} ${d.lastName}</td><td>${d.specialty}</td></tr>`;
-            select.innerHTML += `<option value="${d.id}">${d.firstName} ${d.lastName} - ${d.specialty}</option>`;
-        });
+      res.data.forEach(d => {
+        tbody.innerHTML += `<tr><td>${d.firstName} ${d.lastName}</td><td>${d.specialty}</td></tr>`;
+        select.innerHTML += `<option value="${d.id}">${d.firstName} ${d.lastName} - ${d.specialty}</option>`;
+      });
     }
 
     async function loadPrescriptions() {
-        const res = await axios.get(`/api/prescriptions/patient/${patientId}`);
-        const tbody = document.querySelector("#prescriptionsTable tbody");
-        tbody.innerHTML = "";
+      const res = await axios.get(`/api/prescriptions/patient/${patientId}`);
+      const tbody = document.querySelector("#prescriptionsTable tbody");
+      tbody.innerHTML = "";
 
-        if (res.data.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align: center; color: #aaa;">No prescriptions yet</td>
-                </tr>`;
-            return;
-        }
+      if (res.data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#aaa;">No prescriptions yet</td></tr>`;
+        return;
+      }
 
-        for (const p of res.data) {
-            const doctorName = await getPersonName(p.doctorId);
+      for (const p of res.data) {
+        const doctorName = await getPersonName(p.doctorId);
+        const itemsHtml = p.items && p.items.length > 0
+          ? p.items.map(i => `
+            <div><strong>${i.medicineName || "Medicine #" + i.medicineId}</strong>
+            (${i.dose}, ${i.frequency}, ${i.duration})</div>`).join("")
+          : "-";
 
-            const itemsHtml = p.items && p.items.length > 0
-                ? p.items.map(i => `
-                    <div>
-                        <strong>${i.medicineName || "Medicine #" + i.medicineId}</strong>
-                        (${i.dose}, ${i.frequency}, ${i.duration})
-                    </div>
-                  `).join("")
-                : "-";
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${p.createdAt ? p.createdAt.substring(0,10) : "-"}</td>
-                    <td>${doctorName}</td>
-                    <td>${itemsHtml}</td>
-                    <td>-</td>
-                </tr>`;
-        }
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.createdAt ? p.createdAt.substring(0,10) : "-"}</td>
+            <td>${doctorName}</td>
+            <td>${itemsHtml}</td>
+            <td>-</td>
+            <td><button class="btn" onclick="viewPrescription(${p.id})">View</button></td>
+          </tr>`;
+      }
     }
 
     document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const data = {
-            personId: patientId,
-            doctorId: form.doctor.value,
-            title: form.title.value,
-            description: form.description.value,
-            startTime: form.start.value,
-            endTime: form.end.value,
-            location: form.location.value,
-        };
-        await axios.post("/api/appointments/create", data);
-        form.reset();
-        loadAppointments();
-        alert("Appointment booked!");
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        personId: patientId,
+        doctorId: form.doctor.value,
+        title: form.title.value,
+        description: form.description.value,
+        startTime: form.start.value,
+        endTime: form.end.value,
+        location: form.location.value,
+      };
+      await axios.post("/api/appointments/create", data);
+      form.reset();
+      loadAppointments();
+      alert("Appointment booked!");
     });
 
     async function loadCurrentUser() {
-        const res = await axios.get("/api/auth/me");
-        patientId = res.data.id;
-        document.getElementById("patientName").innerText =
-            res.data.firstName + " " + res.data.lastName;
-
-        await loadAppointments();
-        await loadDoctors();
-        await loadPrescriptions();
+      const res = await axios.get("/api/auth/me");
+      patientId = res.data.id;
+      document.getElementById("patientName").innerText = res.data.firstName + " " + res.data.lastName;
+      await loadAppointments();
+      await loadDoctors();
+      await loadPrescriptions();
     }
 
-    // Load header/footer first, then user data
+    // Prescription modal functions
+    async function viewPrescription(id) {
+      const modal = document.getElementById("prescriptionModal");
+      const content = document.getElementById("prescriptionContent");
+      content.innerHTML = "Loading...";
+      try {
+        const res = await axios.get(`/api/prescriptions/${id}`);
+        const p = res.data;
+        content.innerHTML = `
+          <p><strong>Status:</strong> ${p.status || ""}</p>
+          <p><strong>Issued At:</strong> ${p.issuedAt ? new Date(p.issuedAt).toLocaleString() : "—"}</p>
+          <p><strong>Signed By:</strong> ${p.signedBy || "—"}</p>
+          <h4>Items</h4>
+          <div class="prescription-items">
+            <table>
+              <thead>
+                <tr><th>Medicine</th><th>Dose</th><th>Frequency</th><th>Duration</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                ${p.items && p.items.length > 0
+                  ? p.items.map(item => `
+                    <tr>
+                      <td>${item.medicineName || ""}</td>
+                      <td>${item.dose || ""}</td>
+                      <td>${item.frequency || ""}</td>
+                      <td>${item.duration || ""}</td>
+                      <td>${item.notes || ""}</td>
+                    </tr>`).join("")
+                  : "<tr><td colspan='5'>No items</td></tr>"}
+              </tbody>
+            </table>
+          </div>`;
+        modal.style.display = "flex";
+      } catch {
+        content.innerHTML = "Error loading prescription.";
+      }
+    }
+    function closeModal() {
+      document.getElementById("prescriptionModal").style.display = "none";
+    }
+    function printPrescription() {
+      const printContents = document.getElementById("prescriptionContent").innerHTML;
+      const win = window.open("", "", "height=600,width=800");
+      win.document.write("<html><head><title>Prescription</title></head><body>");
+      win.document.write(printContents);
+      win.document.write("</body></html>");
+      win.document.close();
+      win.print();
+    }
+
     loadHTML('header-placeholder', '/components/header.html').then(loadCurrentUser);
     loadHTML('footer-placeholder', '/components/footer.html');
 </script>
