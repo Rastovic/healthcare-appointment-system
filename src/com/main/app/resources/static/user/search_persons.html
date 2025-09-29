@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Search Persons</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        .search-container {
+          margin: 20px auto;
+          max-width: 600px;
+        }
+        .form-group {
+          margin-bottom: 12px;
+        }
+        label {
+          display: block;
+          margin-bottom: 6px;
+        }
+        input {
+          width: 100%;
+          padding: 8px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+        th {
+          background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main class="container">
+    <h2>Search Persons</h2>
+    <div class="search-container">
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" />
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" />
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" />
+            </div>
+            <button type="submit" class="submit-button">Search</button>
+        </form>
+    </div>
+
+    <div id="results">
+        <table id="resultsTable" style="display: none;">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script>
+    async function loadHTML(id, url) {
+      try {
+        const res = await fetch(url);
+        const html = await res.text();
+        document.getElementById(id).innerHTML = html;
+      } catch (err) {
+        console.error(`Failed to load ${url}`, err);
+      }
+    }
+
+    loadHTML('header-placeholder', '/components/header.html');
+    loadHTML('footer-placeholder', '/components/footer.html');
+
+    document.getElementById("searchForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+
+      const params = new URLSearchParams();
+      if (firstName) params.append("firstName", firstName);
+      if (lastName) params.append("lastName", lastName);
+      if (email) params.append("email", email);
+
+      try {
+        const res = await fetch(`/api/persons/search?${params.toString()}`);
+        const persons = await res.json();
+
+        const table = document.getElementById("resultsTable");
+        const tbody = table.querySelector("tbody");
+        tbody.innerHTML = "";
+
+        if (persons.length > 0) {
+          persons.forEach(p => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${p.id}</td>
+              <td>${p.firstName || ""}</td>
+              <td>${p.lastName || ""}</td>
+              <td>${p.email || ""}</td>
+              <td>${p.roleId || ""}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          table.style.display = "table";
+        } else {
+          tbody.innerHTML = `<tr><td colspan="5">No results found</td></tr>`;
+          table.style.display = "table";
+        }
+      } catch (err) {
+        console.error("Error fetching persons:", err);
+        alert("Error while searching persons");
+      }
+    });
+</script>
+</body>
+</html>

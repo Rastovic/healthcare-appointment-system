@@ -3,10 +3,15 @@ package com.main.app.Services;
 import com.main.app.Dto.PersonDto;
 import com.main.app.Model.Person;
 import com.main.app.Repositories.PersonRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +23,36 @@ public class PersonService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public List<Person> searchPersons(String firstName, String lastName, String email) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM person p WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (StringUtils.hasText(firstName)) {
+            sql.append(" AND LOWER(p.first_name) LIKE LOWER(?) ");
+            params.add("%" + firstName + "%");
+        }
+        if (StringUtils.hasText(lastName)) {
+            sql.append(" AND LOWER(p.last_name) LIKE LOWER(?) ");
+            params.add("%" + lastName + "%");
+        }
+        if (StringUtils.hasText(email)) {
+            sql.append(" AND LOWER(p.email) LIKE LOWER(?) ");
+            params.add("%" + email + "%");
+        }
+
+        Query query = entityManager.createNativeQuery(sql.toString(), Person.class);
+
+        // bind parameters safely
+        for (int i = 0; i < params.size(); i++) {
+            query.setParameter(i + 1, params.get(i)); // JDBC parameters are 1-indexed
+        }
+
+        return query.getResultList();
+    }
 
 
     public Person registerUser(Person person) {

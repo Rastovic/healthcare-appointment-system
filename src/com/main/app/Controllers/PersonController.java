@@ -118,5 +118,18 @@ public class PersonController {
                     .body(null);
         }
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<Person>> searchPersons(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email) {
+        try {
+            List<Person> persons = personService.searchPersons(firstName, lastName, email);
+            return ResponseEntity.ok(persons);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
 }
