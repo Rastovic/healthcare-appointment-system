@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/persons")
@@ -119,7 +121,7 @@ public class PersonController {
         }
     }
     @GetMapping("/search")
-    public ResponseEntity<List<Person>> searchPersons(
+    public ResponseEntity<?> searchPersons(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email) {
@@ -127,7 +129,9 @@ public class PersonController {
             List<Person> persons = personService.searchPersons(firstName, lastName, email);
             return ResponseEntity.ok(persons);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to fetch persons: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 

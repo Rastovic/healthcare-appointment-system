@@ -67,7 +67,6 @@
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
-                <th>Role</th>
             </tr>
             </thead>
             <tbody></tbody>
@@ -111,7 +110,15 @@
 
       try {
         const res = await fetch(`/api/persons/search?${params.toString()}`);
-        const persons = await res.json();
+        let persons = await res.json();
+
+        // ✅ Normalize array response into objects
+        persons = persons.map(p => ({
+          id: p[0],
+          firstName: p[1],
+          lastName: p[2],
+          email: p[3]
+        }));
 
         const table = document.getElementById("resultsTable");
         const tbody = table.querySelector("tbody");
@@ -125,7 +132,6 @@
               <td>${p.firstName || ""}</td>
               <td>${p.lastName || ""}</td>
               <td>${p.email || ""}</td>
-              <td>${p.roleId || ""}</td>
             `;
             tbody.appendChild(tr);
           });

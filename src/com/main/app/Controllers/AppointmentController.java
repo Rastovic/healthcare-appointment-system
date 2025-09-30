@@ -2,10 +2,6 @@ package com.main.app.Controllers;
 
 import com.main.app.Dto.AppointmentDto;
 import com.main.app.Services.AppointmentService;
-import com.main.app.Services.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

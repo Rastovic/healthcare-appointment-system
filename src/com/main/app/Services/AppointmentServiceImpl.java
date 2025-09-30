@@ -4,13 +4,11 @@ import com.main.app.Dto.AppointmentDto;
 import com.main.app.Dto.PrescriptionDTO;
 import com.main.app.Model.Appointment;
 import com.main.app.Model.Person;
-import com.main.app.Model.Prescription;
 import com.main.app.Repositories.AppointmentRepository;
 import com.main.app.Repositories.PersonRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
