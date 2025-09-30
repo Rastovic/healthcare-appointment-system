@@ -94,9 +94,15 @@
     document.getElementById("searchForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const email = document.getElementById("email").value;
+
+      // 🚨 prevent search if all are empty
+      if (!firstName && !lastName && !email) {
+        alert("Please enter at least one search filter.");
+        return;
+      }
 
       const params = new URLSearchParams();
       if (firstName) params.append("firstName", firstName);
@@ -134,5 +140,6 @@
       }
     });
 </script>
+
 </body>
 </html>
